@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Fraunces';
+  src: url('/src/fonts/Fraunces-VariableFont_SOFT,WONK,opsz,wght.ttf') format('truetype');
+  font-weight: 1 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/src/fonts/Poppins-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/src/fonts/Poppins-Semibold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+span, p {
+  @apply font-secondary text-xs text-black text-opacity-80;
+}
+
+h1, h2 {
+  @apply font-primary
+}
+
+label, select {
+  @apply font-secondary text-xs text-white text-opacity-80 font-semibold;
+}
