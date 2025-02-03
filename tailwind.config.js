@@ -4,8 +4,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        primary: ['Fraunces', 'sans-serif'],
-        secondary: ['Poppins', 'sans-serif']
+        primary: ['LyonDisplay', 'sans-serif'],
+        secondary: ['Sailec', 'sans-serif']
       },
       colors: {
         teal: {
