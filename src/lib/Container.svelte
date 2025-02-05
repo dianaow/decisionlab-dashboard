@@ -1,3 +1,3 @@
-<div class="bg-white border border-customGray-100 rounded-3xl p-4 sm:p-6">
+<div class="bg-white border border-grey-linegreen rounded-[20px] p-[20px]">
   <slot />
 </div>

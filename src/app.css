@@ -20,32 +20,60 @@
   font-family: 'Sailec';
   src: url('/src/fonts/Sailec/Sailec-Medium.otf') format('opentype');
   font-weight: 500;
-  font-style: normal;
+  font-style: medium;
 }
 
 @font-face {
   font-family: 'Sailec';
   src: url('/src/fonts/Sailec/Sailec-Bold.otf') format('opentype');
   font-weight: 700;
-  font-style: normal;
+  font-style: bold;
 }
 
-span, p {
-  @apply font-secondary text-xs text-black text-opacity-80;
+label {
+  @apply font-secondary text-xs leading-[16.08px] font-bold text-background-light;
 }
 
-h1, h2, h3 {
-  @apply font-primary
+select {
+  @apply font-secondary text-xs font-bold w-full bg-grey-darkgreen border-[0.77px] border-background-light p-2 opacity-80 rounded my-0 md:my-2;
 }
 
-label, select {
-  @apply font-secondary text-xs text-white text-opacity-80 font-semibold;
+h1 {
+  @apply font-primary text-[64px] leading-[72.32px] font-medium text-primary-darkgreen;
+}
+
+h2 {
+  @apply font-primary text-[32px] leading-[32px] font-medium text-primary-darkgreen;
 }
 
 h3 {
-  @apply text-lg font-medium text-gray-800 mb-2;
+  @apply font-primary text-2xl leading-[32px] font-medium text-primary-darkgreen;
 }
 
 h4 {
-  @apply font-secondary text-sm font-medium text-gray-800 mb-4;
+  @apply font-secondary text-[26px] leading-[39px] font-medium text-primary-darkgreen;
+}
+
+.subtitle-l {
+  @apply font-secondary text-2xl leading-[39.12px] font-medium text-primary-darkgreen;
+}
+
+.subtitle-s {
+  @apply font-primary text-xl leading-[24px] font-medium text-primary-darkgreen;
+}
+
+.body-l {
+  @apply font-primary text-xl leading-[30px] font-normal text-primary-darkgreen;
+}
+
+.body-s {
+  @apply font-secondary text-xs leading-[18px] font-medium text-primary-darkgreen;
+}
+
+p {
+  @apply font-secondary text-xs leading-[18px] font-normal text-primary-darkgreen;
+}
+
+.caption {
+  @apply font-secondary text-xs leading-[16.08px] font-bold text-primary-darkgreen mb-3;
 }

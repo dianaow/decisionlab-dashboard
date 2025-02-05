@@ -70,8 +70,8 @@
         .join('path')
         .attr('d', path)
         .attr('class', 'province')
-        .attr('fill', d => d.properties.name === selectedProvince ? '#666' : '#ccc')
-        .attr('stroke', '#fff')
+        .attr('fill', d => d.properties.name === selectedProvince ? '#666' : '#E3E2E2')
+        .attr('stroke', '#EBF0F0')
         .attr('stroke-width', '1')
         .on('click', (event, d) => {
           selectedProvince = d.properties.name;
@@ -166,7 +166,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    background-color: #f0f0f0;
+    background-color: #EBF0F0;
   }
   
   :global(.province) {

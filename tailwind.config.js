@@ -8,15 +8,20 @@ export default {
         secondary: ['Sailec', 'sans-serif']
       },
       colors: {
-        teal: {
-          dark: '#2F4144',
-          light: '#00C2B2',
+        primary: {
+          darkgreen: '#334445',
+          green: '#319187',
+          teal: '#23CEBC',
         },
-        background: '#f5f7f7',
-        customGray: {
-          100: '#C6D0D0',
-          200: '#6B7280',
-          300: '#2F4144',
+        background: {
+          light: '#F4F7F7',
+          dark: '#EBF0F0'
+        },
+        grey: {
+          linegreen: '#C6D0D0',
+          darkgreen: '#334445',
+          light: '#849AA8',
+          dark: '#718593'
         },
       },
     },

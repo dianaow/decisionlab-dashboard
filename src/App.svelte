@@ -6,6 +6,7 @@
   import Card from './lib/Card.svelte';
   import Container from './lib/Container.svelte';
   import data from './data/data.json';
+  import BarChart from "./lib/BarChart.svelte";
 
   let selectedProvince = 'Select a Province';
   let selectedUrbanicity = 'Select an Urbanicity';
@@ -33,10 +34,10 @@
 
   const order = ['Man', 'Non-binary', 'Woman', 'Prefer not to answer'];
   const colorMap = {
-    "Man": "#2F4144",
-    "Woman": "#00C2B2",
-    "Non-binary": "#C6D0D0",
-    "Prefer not to answer": "#2F4144"
+    "Man": "#334445",
+    "Woman": "#23CEBC",
+    "Non-binary": "#849AA8",
+    "Prefer not to answer": "#718593"
   };
 
   // Sorting needs to assign a new array for reactivity
@@ -75,85 +76,85 @@
   ];
 
   const housingTypes = [
-    { label: "Renters", value: 80 },
-    { label: "Owners", value: 65 },
-    { label: "Type 3", value: 55 },
-    { label: "Type 4", value: 35 },
-    { label: "Type 5", value: 25 }
+    { label: "Renters", percentage: 80 },
+    { label: "Owners", percentage: 65 },
+    { label: "Type 3", percentage: 55 },
+    { label: "Type 4", percentage: 35 },
+    { label: "Type 5", percentage: 25 }
   ];
 
   const buildingTypes = [
-    { label: "Single family home", value: 75 },
-    { label: "Apartment (in a building with more than 12 units)", value: 65 },
-    { label: "Duplex, triplex, fourplex", value: 45 },
-    { label: "Accessory Dwelling Unit", value: 35 },
-    { label: "Townhouse, row house or semi-detached house", value: 25 }
+    { label: "Single family home", percentage: 75 },
+    { label: "Apartment (in a building with more than 12 units)", percentage: 65 },
+    { label: "Duplex, triplex, fourplex", percentage: 45 },
+    { label: "Accessory Dwelling Unit", percentage: 35 },
+    { label: "Townhouse, row house or semi-detached house", percentage: 25 }
   ];
 
   const householdSize = [
-    { label: "2 - 3 people", value: 85 },
-    { label: "4 - 6 people", value: 65 },
-    { label: "1 person", value: 45 },
-    { label: "7 - 10", value: 35 },
-    { label: "10 and more", value: 25 }
+    { label: "2 - 3 people", percentage: 85 },
+    { label: "4 - 6 people", percentage: 65 },
+    { label: "1 person", percentage: 45 },
+    { label: "7 - 10", percentage: 35 },
+    { label: "10 and more", percentage: 25 }
   ];
 
   const attributes = [
-    { label: 'Household income', value: 'More than 130,000', width: 'w-4/5' },
-    { label: 'Household income', value: '100,001-130,000', width: 'w-3/4' },
-    { label: 'Age', value: '26-30', width: 'w-3/5' },
-    { label: 'Age', value: '31-40', width: 'w-2/5' },
-    { label: 'Gender', value: 'Men', width: 'w-1/3' },
-    { label: 'Household income', value: '70,001-100,000', width: 'w-1/4' },
-    { label: 'What is the relationship to you of the people living at your residence?', value: 'I live alone', width: 'w-1/4' },
-    { label: 'What is the relationship to you of the people living at your residence?', value: 'your spouse or common-law partner', width: 'w-1/5' },
-    { label: 'Gender', value: 'Women', width: 'w-1/6' },
-    { label: 'Household income', value: '40,001-70,000', width: 'w-1/6' }
+    { label: 'Household income', value: 'More than 130,000', percentage: 80 },
+    { label: 'Household income', value: '100,001-130,000', percentage: 75 },
+    { label: 'Age', value: '26-30', percentage: 60 },
+    { label: 'Age', value: '31-40', percentage: 40 },
+    { label: 'Gender', value: 'Men', percentage: 33 },
+    { label: 'Household income', value: '70,001-100,000', percentage: 25 },
+    { label: 'What is the relationship to you of the people living at your residence?', value: 'I live alone', percentage: 25 },
+    { label: 'What is the relationship to you of the people living at your residence?', value: 'your spouse or common-law partner', percentage: 20 },
+    { label: 'Gender', value: 'Women', percentage: 15 },
+    { label: 'Household income', value: '40,001-70,000', percentage: 15 }
   ];
   
   const trustSources = [
     {
-      text: "Information Verifiable through Other Sources",
-      value: 90
+      label: "Information Verifiable through Other Sources",
+      percentage: 90
     },
     {
-      text: "Expert or Professional Driven Information",
-      value: 75
+      label: "Expert or Professional Driven Information",
+      percentage: 75
     },
     {
-      text: "Information from Non-Politically or Financially Motivated Orgs",
-      value: 60
+      label: "Information from Non-Politically or Financially Motivated Orgs",
+      percentage: 60
     },
     {
-      text: "Information from Government Entities",
-      value: 45
+      label: "Information from Government Entities",
+      percentage: 45
     },
     {
-      text: "Professionally Presented Information",
-      value: 30
+      label: "Professionally Presented Information",
+      percentage: 30
     }
   ];
 
   const distrustSources = [
     {
-      text: "Social Media (e.g. Facebook and Instagram)",
-      value: 85
+      label: "Social Media (e.g. Facebook and Instagram)",
+      percentage: 85
     },
     {
-      text: "Online Marketplaces (e.g. FB Marketplace, Craigslist and Kijiji)",
-      value: 70
+      label: "Online Marketplaces (e.g. FB Marketplace, Craigslist and Kijiji)",
+      percentage: 70
     },
     {
-      text: "Commercial Content (e.g. From Real Estate Firms & Influencers)",
-      value: 55
+      label: "Commercial Content (e.g. From Real Estate Firms & Influencers)",
+      percentage: 55
     },
     {
-      text: "Profit-Driven Companies",
-      value: 40
+      label: "Profit-Driven Companies",
+      percentage: 40
     },
     {
-      text: "Political Sources or Organizations with Ulterior Motives",
-      value: 25
+      label: "Political Sources or Organizations with Ulterior Motives",
+      percentage: 25
     }
   ];
 
@@ -186,72 +187,71 @@
   ];
 </script>
 
-<div class="flex h-auto bg-gray-100">
- <aside id='dropdownPanel' class="w-64 bg-slate-700 p-6 text-white">
-   <h2 class="text-xl mb-6">Filters</h2>
-   
-   <div class="space-y-6">
-     <div>
-       <label class="block mb-2">Location</label>
-       <select class="w-full bg-slate-600 p-2 rounded" bind:value={selectedProvince}>
-        {#each provinces as province}
-          <option>{province}</option>
-        {/each}
-       </select>
-       <select class="w-full bg-slate-600 p-2 rounded mt-2" bind:value={selectedUrbanicity}>
-        {#each urbanicity as area}
-          <option>{area}</option>
-        {/each}
-       </select>
-     </div>
+<div class="flex flex-col md:flex-row h-auto">
 
-     <div>
-       <label class="block mb-2">How would you describe yourself?</label>
-       <select class="w-full bg-slate-600 p-2 rounded">
-         <option>Select a descriptor</option>
-       </select>
-     </div>
+  <aside id='dropdownPanel' class="flex w-full md:w-64 bg-grey-darkgreen p-6 text-white">    
+    <div class="space-y-6">
+      <h3 class='text-white mb-3'>Filters</h3>
+      <div class='flex md:block space-x-2 md:space-x-0'>
+        <label>Location</label>
+        <select bind:value={selectedProvince} class="flex-1">
+          {#each provinces as province}
+            <option>{province}</option>
+          {/each}
+        </select>
+        <select bind:value={selectedUrbanicity} class="flex-1">
+          {#each urbanicity as area}
+            <option>{area}</option>
+          {/each}
+        </select>
+      </div>
 
-     <div>
-       <label class="block mb-2">Which innovation are you focused on?</label>
-       <select class="w-full bg-slate-600 p-2 rounded">
-         <option>Select an innovation</option>
-       </select>
-     </div>
+      <div class='flex md:block'>
+        <label>How would you describe yourself?</label>
+        <select>
+          <option>Select a descriptor</option>
+        </select>
+      </div>
 
-     <div>
-       <label class="block mb-2">Who are you looking to learn about?</label>
-       <select class="w-full bg-white p-2 rounded text-slate-700">
-         <option>Homeowners</option>
-       </select>
-     </div>
-   </div>
- </aside>
+      <div class='flex md:block'>
+        <label>Which innovation are you focused on?</label>
+        <select>
+          <option>Select an innovation</option>
+        </select>
+      </div>
 
- <div class='w-full'>
-  <main class="h-screen">
+      <div class='flex md:block'>
+        <label>Who are you looking to learn about?</label>
+        <select>
+          <option>Homeowners</option>
+        </select>
+      </div>
+    </div>
+  </aside>
+
+ <div class='w-full bg-background-dark'>
+  <main class="hidden sm:block h-screen bg-background-dark px-4 sm:px-8 pb-2 my-3">
     <div class="relative h-full">
       <Map bind:selectedProvince />
-       <div class="absolute top-8 left-8 bg-white p-4 rounded-lg shadow-sm">
-         <h2 class="text-3xl mb-4">{selectedProvince === 'Select a Province' ? 'Canada' : selectedProvince}</h2>
+      <div class="absolute top-2 left-0 bg-white p-4 rounded-lg">
+         <h2 class="mb-4">{selectedProvince === 'Select a Province' ? 'Canada' : selectedProvince}</h2>
          <div class="space-y-2">
            <div class="flex gap-4">
-             <span class="text-gray-500">Population</span>
-             <span>{canadaStats.population}</span>
+             <span class="caption mb-0">Population</span>
+             <span class='body-s'>{canadaStats.population}</span>
            </div>
            <div class="flex gap-4">
-             <span class="text-gray-500">Area</span>
-             <span>{canadaStats.area}</span>
+             <span class="caption mb-0">Area</span>
+             <span class='body-s'>{canadaStats.area}</span>
            </div>
            <div class="flex gap-4">
-             <span class="text-gray-500">Capital</span>
-             <span>{canadaStats.capital}</span>
+             <span class="caption mb-0">Capital</span>
+             <span class='body-s'>{canadaStats.capital}</span>
            </div>
          </div>
-       </div>
+      </div>
  
-       <!-- Action Buttons -->
-        <div class="absolute top-8 right-8">
+      <div class="absolute top-0 right-0">
            <div class="flex flex-col gap-4">
              <button class="px-2 py-2 border border-teal-500 text-teal-500 rounded-sm flex items-center gap-2">
                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -272,54 +272,74 @@
                COMPARE
              </button>
            </div>
-        </div>
+      </div>
  
-       <!-- Adoption Potential Section -->
-       <div class="absolute bottom-8 w-full">
-         <h2 class="text-xl ml-6 mb-6">Adoption Potential</h2>
-         <div class="grid grid-flow-col justify-stretch ">
-           {#each adoptionStats as stat}
-             <div class="bg-white m-4 p-4 rounded-lg shadow-sm relative">
-               <p class="text-black mb-4">{stat.title}</p>
-               <div class="flex justify-between items-end">
-                 <div class="flex flex-col justify-end">
-                   <span class="text-2xl font-semibold">{stat.count}</span>
-                   <span class="text-xs text-italic text-gray-500">{stat.type}</span>
-                 </div>
-                 <DonutChart percentage={stat.percentage} color={stat.variant} />
-               </div>
-             </div>
-           {/each}
-         </div>
-       </div>
+      <div class="absolute bottom-0 w-full">
+        <p class="subtitle-s ml-2 mb-3">Adoption Potential</p>
+        <div class="grid grid-flow-col justify-stretch">
+          {#each adoptionStats as stat}
+            <div class="border border-grey-linegreen m-2 p-4 rounded-lg relative">
+              <p class="caption">{stat.title}</p>
+              <div class="flex justify-between items-end">
+                <div class="flex flex-col justify-end">
+                  <h4>{stat.count}</h4>
+                  <span class="body-s italic"> homeowners</span>
+                </div>
+                <DonutChart percentage={stat.percentage} color={stat.variant} />
+              </div>
+            </div>
+          {/each}
+        </div>
+      </div>
     </div>
   </main>
  
-  <main class="min-h-screen bg-gray-50 px-4 sm:px-8 py-4">
-    <div class="w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+  <main class="block sm:hidden bg-background-dark px-4 sm:px-8 py-2 my-3">
+    <p class="subtitle-s">Adoption Potential <span class="text-primary-darkgreen italic">for ADUs</span></p>
+    <div class="space-y-2 mt-3">
+      {#each adoptionStats as stat}
+        <div class="flex items-center justify-between border-t border-grey-linegreen">
+          <div class='caption mt-5'>{stat.title}</div>          
+          <div class="flex items-center gap-4">
+            <span>
+              <span class="body-s italic">{stat.count}</span>
+              <span class="body-s italic"> homeowners</span>
+            </span>
+            
+            <div class="w-32 flex items-center justify-end gap-2 mt-2">
+              <h3>{stat.percentage}%</h3>
+              <DonutChart percentage={stat.percentage} color={stat.variant} bgcolor='#C6D0D0' showPercentages={false} showDonut={false} />
+            </div>
+          </div>
+        </div>
+      {/each}
+    </div>
+  </main>
+
+  <main class="min-h-screen bg-background-light px-4 sm:px-8 py-2 my-3">
+    <div class="w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mt-5">
       <Card title="Demographics">
         <div class='space-y-4 sm:space-y-6'>
           <Container>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12">
-              <!-- Gender Section -->
+            <div class="grid grid-cols-2 gap-8 sm:gap-12">
               <div class="flex flex-col">
-                <h4>Gender</h4>
+                <p class='caption'>Gender</p>
                 <div class="grid grid-cols-2 gap-2">
                   <div class="flex items-center gap-2">
-                    <div class="w-8 h-3 bg-teal-dark rounded-full"></div>
-                    <span class="text-sm text-teal-dark">Male</span>
+                    <div class="w-5 h-2.5 bg-primary-darkgreen rounded-full"></div>
+                    <p>Male</p>
                   </div>
                   <div class="flex items-center gap-2">
-                    <div class="w-8 h-3 bg-teal-light rounded-full"></div>
-                    <span class="text-sm text-teal-dark">Female</span>
+                    <div class="w-5 h-2.5 bg-primary-teal rounded-full"></div>
+                    <p>Female</p>
                   </div>
                   <div class="flex items-center gap-2">
-                      <div class="w-8 h-3 bg-customGray-100 rounded-full"></div>
-                      <span class="text-sm text-teal-dark">Non-binary</span>
+                      <div class="w-5 h-2.5 bg-grey-light rounded-full"></div>
+                      <p>Non-binary</p>
                     </div>
                     <div class="flex items-center gap-2">
-                      <div class="w-8 h-3 bg-customGray-200 rounded-full"></div>
-                      <span class="text-sm text-teal-dark">Prefer not to answer</span>
+                      <div class="w-5 h-2.5 bg-grey-dark rounded-full"></div>
+                      <p>Prefer not to answer</p>
                     </div>
                 </div>
                 <div class="flex-1 w-full mt-3">
@@ -331,17 +351,16 @@
                 </div>
               </div>
       
-              <!-- Age Groups Section -->
               <div>
-                <h4>Age Group</h4>
+                <p class='caption'>Age Group</p>
                 <div class="space-y-3">
                   {#each ageGroup as group}
                     <div class="flex items-center gap-3">
-                      <span class="w-16 text-sm text-teal-dark">{group.label}</span>
-                        <div class="h-4 bg-teal-dark rounded-full" 
+                      <p class="w-10">{group.label}</p>
+                        <div class="h-4 bg-primary-darkgreen rounded-full" 
                             style="width: {group.percentage}%"
                         ></div>
-                        <div class="text-sm text-teal-dark">{group.percentage}%</div>
+                        <div class="body-s">{group.percentage}%</div>
                     </div>
                   {/each}
                 </div>
@@ -351,28 +370,28 @@
           
           <div class="grid grid-cols-2 gap-6">
             <Container>
-              <h4>Household Income</h4>
+              <p class='caption'>Household Income</p>
               <div class="space-y-3">
                 {#each householdIncome as { label, percentage }}
                   <div class="flex">
                     <div class='w-3/4'>
                       <div class="flex items-center gap-3">
-                        <div class="h-4 rounded-full bg-teal-light"
+                        <div class="h-4 rounded-full bg-primary-teal"
                             style="width: {percentage === 0 ? 1 : percentage}%"
                         ></div>
                       </div>
-                      <div class="text-xs text-gray-500">{label}</div>
+                      <p>{label}</p>
                     </div>
-                    <div class="w-1/4 pl-6 text-sm text-teal-dark font-medium">{percentage}%</div>
+                    <div class="w-1/4 pl-6 body-s">{percentage}%</div>
                   </div>
                 {/each}
               </div>
             </Container>
             <Container>
-              <h4>
+              <p class='caption'>
                 Geographic Location
-                <span class="text-xs italic text-gray-500">by Province</span>
-              </h4>
+                <span class="caption font-normal italic">by Province</span>
+              </p>
               
               <div class="mt-4">
                 <div class="flex justify-center">
@@ -391,8 +410,8 @@
                   {#each locationData as { region, value, color }}
                     <div class="flex items-center gap-2">
                       <div class="w-5 h-2.5 rounded-full {color}"></div>
-                      <span class="text-xs text-[#2F4144]">{region}</span>
-                      <span class="text-xs text-[#2F4144] font-medium ml-auto">{value}%</span>
+                      <p>{region}</p>
+                      <p class='body-s'>{value}%</p>
                     </div>
                   {/each}
                 </div>
@@ -406,21 +425,19 @@
           <div class="space-y-4">
             {#each attributes as attr, index}
             <div class="w-full">
-              <div class="text-sm text-gray-600 mb-1">
-                {attr.label}: <span class="italic">{attr.value}</span>
-              </div>
-              <div class="h-4 bg-gray-100 rounded-full w-full">
-                <div class="h-full bg-teal-400 rounded-full {attr.width}"></div>
+              <p class="mb-1">
+                {attr.label}: <span class="body-s italic">{attr.value}</span>
+              </p>
+              <div class="bg-grey-linegreen bg-opacity-20 rounded-full h-4 ">
+                <div class="h-full bg-primary-teal rounded-full" style="width: {attr.percentage}%"></div>
               </div>
             </div>
           {/each}
           </div>
         </Container>
         <div class="mt-8">
-          <h2 class="text-lg text-gray-800 mb-2">
-            At vero eos et accusamus et iusto odio dignissimos
-          </h2>
-          <p class="text-sm text-gray-500">
+          <p class="body-l mb-3">At vero eos et accusamus et iusto odio dignissimos</p>
+          <p class="text-grey-light">
             Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit
             laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure
             reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel
@@ -431,7 +448,7 @@
     </div>
   </main>
    
-  <main class="min-h-screen bg-gray-50 px-4 sm:px-8 py-4">
+  <main class="min-h-screen bg-background-light px-4 sm:px-8 py-2 my-3">
     <div class="w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       <Card title="Barriers & Drivers">     
         <!-- <div class="bg-white grid md:grid-cols-2 gap-6">
@@ -469,32 +486,22 @@
 
         <Container>
           <div class="grid md:grid-cols-2 gap-6">
-            <div class="space-y-4">
-              {#each barriers as barrier}
-                <div>
-                  <div class="text-sm text-gray-600 mb-1">{barrier.label}</div>
-                  <div class="h-4 bg-gray-100 rounded-full">
-                    <div class="h-full bg-gray-400 rounded-full" style="width: {barrier.percentage}%"></div>
-                  </div>
-                </div>
-              {/each}
-            </div>
-            <div class="space-y-4">
-              {#each drivers as driver}
-                <div>
-                  <div class="text-sm text-gray-600 mb-1">{driver.label}</div>
-                  <div class="h-4 bg-gray-100 rounded-full">
-                    <div class="h-full bg-gray-400 rounded-full" style="width: {driver.percentage}%"></div>
-                  </div>
-                </div>
-              {/each}
-            </div>           
-        </div>
+            <BarChart
+              data={barriers}
+              labelSize="text-xs"
+              spacing="space-y-3"
+            />
+            <BarChart
+              data={drivers}
+              labelSize="text-xs"
+              spacing="space-y-3"
+            />           
+          </div>
         </Container>
 
         <div class="mt-8">
-          <h3>Duis aute irure dolor in reprehenderit</h3>
-          <p class="text-gray-500 text-sm">
+          <p class="body-l mb-3">Duis aute irure dolor in reprehenderit</p>
+          <p class="text-grey-light">
             Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium 
             doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore 
             veritatis et quasi architecto beatae vitae dicta sunt explicabo.
@@ -504,71 +511,47 @@
       <Card title="Current Housing Circumstance">
         <Container>
           <div class="grid md:grid-cols-2 gap-8">
-            <!-- Type of housing -->
             <div>
-              <h4>Type of housing</h4>
-              <div class="space-y-3">
-                {#each housingTypes as item}
-                  <div>
-                    <div class="text-sm text-gray-600 mb-1">{item.label}</div>
-                    <div class="h-4 bg-gray-100 rounded-full">
-                      <div class="h-full bg-gray-400 rounded-full" style="width: {item.value}%"></div>
-                    </div>
-                  </div>
-                {/each}
-              </div>
+              <p class='caption'>Type of housing</p>
+              <BarChart
+                data={housingTypes}
+                labelSize="text-xs"
+                spacing="space-y-3"
+              />
             </div>
         
-            <!-- Type of building -->
             <div>
-              <h4>Type of building</h4>
-              <div class="space-y-3">
-                {#each buildingTypes as item}
-                  <div>
-                    <div class="text-sm text-gray-600 mb-1">{item.label}</div>
-                    <div class="h-4 bg-gray-100 rounded-full">
-                      <div class="h-full bg-gray-400 rounded-full" style="width: {item.value}%"></div>
-                    </div>
-                  </div>
-                {/each}
-              </div>
+              <p class='caption'>Type of building</p>
+              <BarChart
+                data={buildingTypes}
+                labelSize="text-xs"
+                spacing="space-y-3"
+              />
             </div>
         
-            <!-- Household Size -->
             <div>
-              <h4>Household Size</h4>
-              <div class="space-y-3">
-                {#each householdSize as item}
-                  <div>
-                    <div class="text-sm text-gray-600 mb-1">{item.label}</div>
-                    <div class="h-4 bg-gray-100 rounded-full">
-                      <div class="h-full bg-gray-400 rounded-full" style="width: {item.value}%"></div>
-                    </div>
-                  </div>
-                {/each}
-              </div>
+              <p class='caption'>Household Size</p>
+              <BarChart
+                data={householdSize}
+                labelSize="text-xs"
+                spacing="space-y-3"
+              />
             </div>
         
-            <!-- Household Composition -->
             <div>
-              <h4>Household Composition</h4>
-              <div class="space-y-3">
-                {#each householdComposition as item}
-                  <div>
-                    <div class="text-sm text-gray-600 mb-1">{item.label}</div>
-                    <div class="h-4 bg-gray-100 rounded-full">
-                      <div class="h-full bg-gray-400 rounded-full" style="width: {item.percentage}%"></div>
-                    </div>
-                  </div>
-                {/each}
-              </div>
+              <p class='caption'>Household Composition</p>
+              <BarChart
+                data={householdComposition}
+                labelSize="text-xs"
+                spacing="space-y-3"
+              />
             </div>
           </div>
         </Container>
       
         <div class="mt-8">
-          <h3>Duis aute irure dolor in reprehenderit</h3>
-          <p class="text-gray-500 text-sm">
+          <p class="body-l mb-3">Duis aute irure dolor in reprehenderit</p>
+          <p class="text-grey-light">
             Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium 
             doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore 
             veritatis et quasi architecto beatae vitae dicta sunt explicabo.
@@ -578,65 +561,50 @@
     </div>
   </main>
 
-  <main class="flex bg-gray-50 px-8 py-4">
-  <Card title="Key Communication Considerations">  
-    <div class="grid md:grid-cols-2 gap-6">
-      <!-- Primary Channels -->
-      <Container>
-        <h4>Primary Channels for Housing Information</h4>
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {#each channels as channel}
-            <div class="bg-gray-50 rounded-lg p-4">
-              <div class="text-2xl mb-2">{channel.icon}</div>
-              <h4 class="text-sm font-medium text-gray-700 mb-1">{channel.title}</h4>
-              <p class="text-xs text-gray-500">{channel.description}</p>
+  <main class="flex bg-background-light px-4 sm:px-8 py-2 my-3">
+    <Card title="Key Communication Considerations">  
+      <div class="grid md:grid-cols-2 gap-6">
+        <Container>
+          <p class='caption'>Primary Channels for Housing Information</p>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {#each channels as channel}
+              <div class="border border-grey-linegreen rounded-lg p-4">
+                <div class="text-2xl mb-2">{channel.icon}</div>
+                <p class='caption'>{channel.title}</p>
+                <p class="text-grey-light">{channel.description}</p>
+              </div>
+            {/each}
+          </div>
+        </Container>
+    
+        <Container>
+          <div class="grid md:grid-cols-2 gap-6">
+            <div>
+              <p class='caption'>Sources of Trust</p>
+              <BarChart
+                data={trustSources}
+              />
             </div>
-          {/each}
-        </div>
-      </Container>
-  
-      <!-- Trust and Distrust -->
-      <Container>
-        <div class="grid md:grid-cols-2 gap-6">
-          <div>
-            <h4>Sources of Trust</h4>
-            <div class="space-y-4">
-              {#each trustSources as source}
-                <div>
-                  <div class="text-sm text-gray-600 mb-2">{source.text}</div>
-                  <div class="h-2 bg-gray-100 rounded-full">
-                    <div class="h-full bg-teal-400 rounded-full" style="width: {source.value}%"></div>
-                  </div>
-                </div>
-              {/each}
+            
+            <div>
+              <p class='caption'>Sources of Distrust</p>
+              <BarChart
+                data={distrustSources}
+              />
             </div>
           </div>
-          <div>
-            <h4>Sources of Distrust</h4>
-            <div class="space-y-4">
-              {#each distrustSources as source}
-                <div>
-                  <div class="text-sm text-gray-600 mb-2">{source.text}</div>
-                  <div class="h-4 bg-gray-100 rounded-full">
-                    <div class="h-full bg-gray-400 rounded-full" style="width: {source.value}%"></div>
-                  </div>
-                </div>
-              {/each}
-            </div>
-          </div>
-        </div>
-      </Container>
-    </div>
-  
-    <div class="mt-8">
-      <h3>Lorem ipsum dolor sit amet, consectetur</h3>
-      <p class="text-gray-500 text-sm">
-        Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo 
-        inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, 
-        sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
-      </p>
-    </div>
-  </Card>
+        </Container>
+      </div>
+    
+      <div class="mt-8">
+        <p class='body-l mb-3'>Lorem ipsum dolor sit amet, consectetur</p>
+        <p class="text-grey-light">
+          Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo 
+          inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, 
+          sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
+        </p>
+      </div>
+    </Card>
   </main>
  </div>
 </div>
