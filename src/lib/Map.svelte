@@ -70,7 +70,7 @@
         .join('path')
         .attr('d', path)
         .attr('class', 'province')
-        .attr('fill', d => d.properties.name === selectedProvince ? '#666' : '#E3E2E2')
+        .attr('fill', d => d.properties.name === selectedProvince ? '#718593' : '#E3E2E2')
         .attr('stroke', '#EBF0F0')
         .attr('stroke-width', '1')
         .on('click', (event, d) => {
@@ -87,7 +87,7 @@
           select(this)
             .transition()
             .duration(200)
-            .attr('fill', d.properties.name === selectedProvince ? '#666' : '#ccc');
+            .attr('fill', d.properties.name === selectedProvince ? '#718593' : '#E3E2E2');
         });
     } catch (error) {
       console.error('Error loading map data:', error);

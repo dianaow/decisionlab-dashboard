@@ -29,7 +29,7 @@
     class="{showDonut? 'bg-background-dark' : ''} absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 {centerClasses} rounded-full flex items-center justify-center"
   >
   {#if showPercentages}
-    <h3 class="{fontSize}">{percentage}%</h3>
+    <h3>{percentage}%</h3>
   {/if}
   </div>
 </div>
