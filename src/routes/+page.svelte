@@ -116,7 +116,7 @@
       return {
         ...item,
         attributeTotal,
-        percentage: attributeTotal > 0 ? ((item.value / attributeTotal) * 100).toFixed(2) : 0
+        percentage: attributeTotal > 0 ? parseFloat(((item.value / attributeTotal) * 100).toFixed(2)) : 0
       };
     });
   }

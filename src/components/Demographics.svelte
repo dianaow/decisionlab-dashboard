@@ -12,16 +12,19 @@
     "Non-binary": "#849AA8",
     "Prefer not to answer": "#718593"
   };
+  let sortedGender
 
-  // Sorting needs to assign a new array for reactivity
-  let sortedGender = [...gender].sort((x, y) => order.indexOf(x.index) - order.indexOf(y.index));
+  $: {
+    // Sorting needs to assign a new array for reactivity
+    sortedGender = [...gender].sort((x, y) => order.indexOf(x.index) - order.indexOf(y.index));
 
-  // Assign colors dynamically
-  sortedGender = sortedGender.map(item => ({
-    ...item,
-    color: colorMap[item.index]
-  }));
-
+    // Assign colors dynamically
+    sortedGender = sortedGender.map(item => ({
+      ...item,
+      color: colorMap[item.index]
+    }));
+    console.log('sortedGende', sortedGender)
+  }
 </script>
 
 <Card title="Demographics">
