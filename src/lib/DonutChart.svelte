@@ -6,13 +6,14 @@
   export let label = '';
   export let showPercentages = true;
   export let showDonut = true;
+  export let selected = false;
 
   $: sizeClasses = size === 'large' 
-    ? 'w-12 h-12 md:w-16 md:h-16 2xl:w-20 2xl:h-20' 
+    ? 'w-20 h-20 md:w-24 md:h-24 2xl:w-28 2xl:h-28' 
     : 'w-8 h-8 md:w-12 md:h-12 2xl:w-16 2xl:h-16';
 
   $: centerClasses = size === 'large'
-    ? 'w-8 h-8 md:w-12 md:h-12 2xl:w-16 2xl:h-16'
+    ? 'w-16 h-16 md:w-20 md:h-20 2xl:w-24 2xl:h-24'
     : 'w-6 h-6 md:w-9 md:h-9 2xl:w-12 2xl:h-12';
 
   $: fontSize = size === 'large'
@@ -26,10 +27,10 @@
     style="background: conic-gradient({color} {percentage}%, {bgcolor} {percentage}% 20%)"
   />
   <div
-    class="{showDonut? 'bg-background-dark' : ''} absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 {centerClasses} rounded-full flex items-center justify-center"
+    class="{showDonut? 'bg-background-dark' : ''} {selected ? 'bg-primary-darkgreen' : ''} absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 {centerClasses} rounded-full flex items-center justify-center"
   >
   {#if showPercentages}
-    <h3>{percentage}%</h3>
+    <h3 class="{selected ? 'text-white' : ''}">{percentage}%</h3>
   {/if}
   </div>
 </div>

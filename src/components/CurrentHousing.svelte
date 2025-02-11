@@ -3,12 +3,28 @@
   import Container from '../lib/Container.svelte';
   import BarChart from "../lib/BarChart.svelte";
 
-  export let housingTypes, buildingTypes, householdSize, householdComposition
+  export let housingTypes, householdComposition
+
+  // const buildingTypes = [
+  //   { label: "Single family home", percentage: 75 },
+  //   { label: "Apartment (in a building with more than 12 units)", percentage: 65 },
+  //   { label: "Duplex, triplex, fourplex", percentage: 45 },
+  //   { label: "Accessory Dwelling Unit", percentage: 35 },
+  //   { label: "Townhouse, row house or semi-detached house", percentage: 25 }
+  // ];
+
+  // const householdSize = [
+  //   { label: "2 - 3 people", percentage: 85 },
+  //   { label: "4 - 6 people", percentage: 65 },
+  //   { label: "1 person", percentage: 45 },
+  //   { label: "7 - 10", percentage: 35 },
+  //   { label: "10 and more", percentage: 25 }
+  // ];
 </script>
 
 <Card title="Current Housing Circumstance">
   <Container>
-    <div class="grid md:grid-cols-2 gap-8">
+    <div class="grid grid-cols-1 gap-8">
       <div>
         <p class='caption'>Type of housing</p>
         <BarChart
@@ -18,7 +34,7 @@
         />
       </div>
   
-      <div>
+      <!-- <div>
         <p class='caption'>Type of building</p>
         <BarChart
           data={buildingTypes}
@@ -34,7 +50,7 @@
           labelSize="text-xs"
           spacing="space-y-3"
         />
-      </div>
+      </div> -->
   
       <div>
         <p class='caption'>Household Composition</p>

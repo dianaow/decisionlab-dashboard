@@ -1,19 +1,21 @@
 const fs = require('fs');
 const path = require('path');
 
-const fileInputName = path.join(__dirname, 'src/data/data.csv'); 
-const fileOutputName = path.join(__dirname, 'src/data/data.json');
+const fileInputName = path.join(__dirname, 'src/data/data1.tsv'); 
+const fileOutputName = path.join(__dirname, 'src/data/data2.json');
 
 fs.readFile(fileInputName, 'utf-8', (err, data) => {
     if (err) {
-      console.error('Error reading the file:', err);
-      return;
+        console.error('Error reading the file:', err);
+        return;
     }
 
-    const jsonArray = convertCSVToJSON(data)
+    const flatData = flattenData(data)
+
+    const aggregatedResults = calculateAggregations(flatData);
 
     // Convert JSON array to string
-    const jsonString = JSON.stringify(jsonArray, null, 2);
+    const jsonString = JSON.stringify(aggregatedResults, null, 2);
 
     // Write the JSON string to a file
     fs.writeFile(fileOutputName, jsonString, 'utf-8', err => {
@@ -25,218 +27,198 @@ fs.readFile(fileInputName, 'utf-8', (err, data) => {
     });
 });
 
-function convertCSVToJSON(csvData) {
-    // Split CSV into lines and remove empty lines
-    const lines = csvData.split('\n').filter(line => line.trim());
-    
-    // Extract headers
-    const headers = lines[0].split(',').map(h => h.trim());
-    const subHeaders = lines[1].split(',').map(h => h.trim());
-    
-    // Initialize result object
-    const result = {};
-    
-    // Get unique regions (excluding empty, "Total" and first two columns)
-    const regions = headers.slice(2, -1).filter(h => h && h !== "Total");
-    const uniqueRegions = [...new Set(regions)];
-    
-    // Initialize region structure with groupTotals
-    const groupTotals = {};
-    uniqueRegions.forEach(region => {
-        result[region] = {
-            Urban: {
-                gender: [],
-                ageGroup: [],
-                householdIncome: [],
-                householdComposition: [],
-                housing: [],
-                barriers: [],
-                drivers: [],
-                keyInformation: []
-            },
-            Rural: {
-                gender: [],
-                ageGroup: [],
-                householdIncome: [],
-                householdComposition: [],
-                housing: [],
-                barriers: [],
-                drivers: [],
-                keyInformation: []
-            },
-            Total: {
-                gender: [],
-                ageGroup: [],
-                householdIncome: [],
-                householdComposition: [],
-                housing: [],
-                barriers: [],
-                drivers: [],
-                keyInformation: []
-            }
-        };
-        
-        groupTotals[region] = {
-            Urban: {},
-            Rural: {},
-            Total: {}
-        };
-    });
+function flattenData(dataString) {
+    // Split the data into lines
+    const lines = dataString.trim().split('\n');
 
-    // Initialize Total region structure
-    result["Total"] = {
-        Urban: {
-            gender: [],
-            ageGroup: [],
-            householdIncome: [],
-            householdComposition: [],
-            housing: [],
-            barriers: [],
-            drivers: [],
-            keyInformation: []
-        },
-        Rural: {
-            gender: [],
-            ageGroup: [],
-            householdIncome: [],
-            householdComposition: [],
-            housing: [],
-            barriers: [],
-            drivers: [],
-            keyInformation: []
-        },
-        Total: {
-            gender: [],
-            ageGroup: [],
-            householdIncome: [],
-            householdComposition: [],
-            housing: [],
-            barriers: [],
-            drivers: [],
-            keyInformation: []
-        }
-    };
-    groupTotals["Total"] = {
-        Urban: {},
-        Rural: {},
-        Total: {}
-    };
+    // Extract headers (first two rows)
+    const provinceHeaders = lines[0].split('\t');
+    const urbanicityHeaders = lines[1].split('\t').slice(4);
 
-    // First pass: Calculate group totals
-    let currentSection = '';
-    for (let i = 2; i < lines.length; i++) {
-        const line = lines[i];
-        const values = line.split(',').map(v => v.trim());
-        const type = values[1];
-
-        // Determine current section based on type
-        if (type === 'Gender') currentSection = 'gender';
-        else if (type === 'Age Group') currentSection = 'ageGroup';
-        else if (type === 'Household Income') currentSection = 'householdIncome';
-        else if (type === 'Household Composition') currentSection = 'householdComposition';
-        else if (type === 'Type of Housing') currentSection = 'housing';
-        else if (type === 'Barriers') currentSection = 'barriers';
-        else if (type === 'Drivers') currentSection = 'drivers';
-        else if (type === 'Key Pieces of Information') currentSection = 'keyInformation';
-
-        // Calculate totals for each region and section
-        let totalUrban = 0;
-        let totalRural = 0;
-        
-        uniqueRegions.forEach(region => {
-            const regionIndex = headers.indexOf(region);
-            if (!groupTotals[region].Urban[currentSection]) {
-                groupTotals[region].Urban[currentSection] = 0;
-                groupTotals[region].Rural[currentSection] = 0;
-                groupTotals[region].Total[currentSection] = 0;
-            }
-            
-            const urbanValue = parseInt(values[regionIndex]) || 0;
-            const ruralValue = parseInt(values[regionIndex + 1]) || 0;
-            
-            totalUrban += urbanValue;
-            totalRural += ruralValue;
-            
-            groupTotals[region].Urban[currentSection] += urbanValue;
-            groupTotals[region].Rural[currentSection] += ruralValue;
-            groupTotals[region].Total[currentSection] += urbanValue + ruralValue;
+    // Ensure proper alignment of province names
+    const provinces = [];
+    for (let i = 0; i < provinceHeaders.length; i++) {
+        provinces.push({
+            province: provinceHeaders[i].trim(),
+            urbanicity: urbanicityHeaders[i].trim()
         });
-
-        // Add to Total region totals
-        if (!groupTotals["Total"].Urban[currentSection]) {
-            groupTotals["Total"].Urban[currentSection] = 0;
-            groupTotals["Total"].Rural[currentSection] = 0;
-            groupTotals["Total"].Total[currentSection] = 0;
-        }
-        groupTotals["Total"].Urban[currentSection] += totalUrban;
-        groupTotals["Total"].Rural[currentSection] += totalRural;
-        groupTotals["Total"].Total[currentSection] += (totalUrban + totalRural)
     }
 
-    // Second pass: Add data with correct percentages
-    currentSection = '';
-    for (let i = 2; i < lines.length; i++) {
-        const line = lines[i];
-        const values = line.split(',').map(v => v.trim());
-        const category = values[0].replace(/"/g, '');
-        const type = values[1];
-        const totalColumnValue = parseInt(values[values.length - 1]) || 0;
+    // Initialize array to store the flattened data
+    const flattenedData = [];
 
-        // Determine current section
-        if (type === 'Gender') currentSection = 'gender';
-        else if (type === 'Age Group') currentSection = 'ageGroup';
-        else if (type === 'Household Income') currentSection = 'householdIncome';
-        else if (type === 'Household Composition') currentSection = 'householdComposition';
-        else if (type === 'Type of Housing') currentSection = 'housing';
-        else if (type === 'Barriers') currentSection = 'barriers';
-        else if (type === 'Drivers') currentSection = 'drivers';
-        else if (type === 'Key Pieces of Information') currentSection = 'keyInformation';
+    // Process each row after the header rows
+    lines.slice(2).forEach(line => {
+        const values = line.split('\t');
+        
+        // Extract base values
+        const index = values[0].trim();
+        const attribute = values[1].trim();
+        const innovation = values[2].trim();
+        const adoption = values[3].trim();
 
-        // Process each region
-        let totalUrban = 0;
-        let totalRural = 0;
+        // Process each province-urbanicity pair
+        for (let i = 0; i < provinces.length; i++) {
+            const { province, urbanicity } = provinces[i];
+            const value = values[i + 4]?.trim(); // Adjust column index
 
-        uniqueRegions.forEach(region => {
-            const regionIndex = headers.indexOf(region);
-            const urbanValue = parseInt(values[regionIndex]) || 0;
-            const ruralValue = parseInt(values[regionIndex + 1]) || 0;
-            const totalValue = urbanValue + ruralValue;
-
-            totalUrban += urbanValue;
-            totalRural += ruralValue;
-
-            // Add to each location with correct group-based percentages
-            const addToSection = (location, value, groupTotal) => {
-                if (groupTotal > 0) {
-                    result[region][location][currentSection].push({
-                        label: category,
-                        value: value,
-                        percentage: parseFloat(((value / groupTotal) * 100).toFixed(2))
-                    });
-                }
-            };
-
-            // Add to urban, rural, and total sections with their respective group totals
-            addToSection('Urban', urbanValue, groupTotals[region].Urban[currentSection]);
-            addToSection('Rural', ruralValue, groupTotals[region].Rural[currentSection]);
-            addToSection('Total', totalValue, groupTotals[region].Total[currentSection]);
-        });
-
-        // Add to Total region
-        const addToTotalSection = (location, value, groupTotal) => {
-            if (groupTotal > 0) {
-                result["Total"][location][currentSection].push({
-                    label: category,
-                    value: value,
-                    percentage: parseFloat(((value / groupTotal) * 100).toFixed(2))
+            if (value) {
+                flattenedData.push({
+                    index,
+                    attribute,
+                    innovation,
+                    adoption,
+                    province,
+                    urbanicity,
+                    value: parseFloat(value) || value
                 });
             }
-        };
+        }
+    });
 
-        addToTotalSection('Urban', totalUrban, groupTotals["Total"].Urban[currentSection]);
-        addToTotalSection('Rural', totalRural, groupTotals["Total"].Rural[currentSection]);
-        addToTotalSection('Total', totalColumnValue, groupTotals["Total"].Total[currentSection]);
-    }
+    return flattenedData;
+}
 
-    return result;
+function calculateAggregations(flatData) {
+    // Helper function to create a key from attributes
+    const makeKey = (row, level) => {
+        switch(level) {
+            case 'level0': // Province+Urbanicity+Innovation+Adoption+Attribute+Index
+                return `${row.province}_${row.urbanicity}_${row.innovation}_${row.adoption}_${row.attribute}_${row.index}`;
+            case 'level1': // Province+Urbanicity+Innovation+Adoption+Attribute
+                return `${row.province}_${row.urbanicity}_${row.innovation}_${row.adoption}_${row.attribute}`;
+            case 'level2': // Province+Urbanicity+Innovation+Attribute
+                return `${row.province}_${row.urbanicity}_${row.innovation}_${row.attribute}`;
+            case 'level3': // Province+Urbanicity+Attribute
+                return `${row.province}_${row.urbanicity}_${row.attribute}`;
+            case 'level4': // Province+Attribute
+                return `${row.province}_${row.attribute}`;
+            case 'level5': // Attribute
+                return row.attribute;
+        }
+    };
+
+    // Initialize aggregation objects
+    const aggregations = {
+        level0: {},
+        level1: {},
+        level2: {},
+        level3: {},
+        level4: {},
+        level5: {}
+    };
+
+    // Calculate sums for each level
+    flatData.forEach(row => {
+        const value = parseFloat(row.value) || 0;
+
+        // Level 0: Province+Urbanicity+Innovation+Adoption+Attribute+Index
+        const key0 = makeKey(row, 'level0');
+        aggregations.level0[key0] = (aggregations.level0[key0] || 0) + value;
+
+        // Level 1: Province+Urbanicity+Innovation+Adoption+Attribute
+        const key1 = makeKey(row, 'level1');
+        aggregations.level1[key1] = (aggregations.level1[key1] || 0) + value;
+
+        // Level 2: Province+Urbanicity+Innovation+Attribute
+        const key2 = makeKey(row, 'level2');
+        aggregations.level2[key2] = (aggregations.level2[key2] || 0) + value;
+
+        // Level 3: Province+Urbanicity+Attribute
+        const key3 = makeKey(row, 'level3');
+        aggregations.level3[key3] = (aggregations.level3[key3] || 0) + value;
+
+        // Level 4: Province+Attribute
+        const key4 = makeKey(row, 'level4');
+        aggregations.level4[key4] = (aggregations.level4[key4] || 0) + value;
+
+        // Level 5: Attribute
+        const key5 = makeKey(row, 'level5');
+        aggregations.level5[key5] = (aggregations.level5[key5] || 0) + value;
+    });
+
+    // Calculate percentages and format results
+    const results = [];
+
+    // Helper function to parse key components
+    const parseKey = (key, level) => {
+        const parts = key.split('_');
+        switch(level) {
+            case 'level0':
+                return {
+                    province: parts[0],
+                    urbanicity: parts[1],
+                    innovation: parts[2],
+                    adoption: parts[3],
+                    attribute: parts[4],
+                    index: parts[5]
+                };
+            case 'level1':
+                return {
+                    province: parts[0],
+                    urbanicity: parts[1],
+                    innovation: parts[2],
+                    adoption: parts[3],
+                    attribute: parts[4]
+                };
+            case 'level2':
+                return {
+                    province: parts[0],
+                    urbanicity: parts[1],
+                    innovation: parts[2],
+                    attribute: parts[3]
+                };
+            case 'level3':
+                return {
+                    province: parts[0],
+                    urbanicity: parts[1],
+                    attribute: parts[2]
+                };
+            case 'level4':
+                return {
+                    province: parts[0],
+                    attribute: parts[1]
+                };
+            case 'level5':
+                return {
+                    attribute: parts[0]
+                };
+        }
+    };
+
+    // Process each level
+    Object.entries(aggregations).forEach(([level, data]) => {
+        Object.entries(data).forEach(([key, value]) => {
+            const components = parseKey(key, level);
+
+            // Use the next level up for `attributeTotal`
+            let parentLevel = {
+                level0: 'level1',
+                level1: 'level2',
+                level2: 'level3',
+                level3: 'level4',
+                level4: 'level5',
+                level5: null // No higher level
+            }[level];
+
+            const parentKey = parentLevel ? makeKey(components, parentLevel) : null;
+            const attributeTotal = parentKey ? aggregations[parentLevel][parentKey] : value;
+
+            const percentage = attributeTotal ? (value / attributeTotal) * 100 : 100;
+
+            results.push({
+                level,
+                ...components,
+                value,
+                percentage: parseFloat(percentage.toFixed(2)),
+                attributeTotal
+            });
+        });
+    });
+
+    return results.sort((a, b) =>
+        a.attribute.localeCompare(b.attribute) ||
+        (a.province || '').localeCompare(b.province || '') ||
+        (a.urbanicity || '').localeCompare(b.urbanicity || '')
+    );
 }

@@ -7,45 +7,149 @@
   import BarriersDrivers from "../components/BarriersDrivers.svelte";
   import CurrentHousing from "../components/CurrentHousing.svelte";
   import KeyCommunication from "../components/KeyCommunication.svelte";
-  import data from '../data/data.json';
+  import data from '../data/data2.json';
 
   let selectedProvince = 'Select a Province';
   let selectedUrbanicity = 'Select an Urbanicity';
-  let filteredData
+  let selectedInnovation = 'Select an Innovation';
+  let selectedAdoption = 'Select an Adoption';
+  let dataToShow, gender, ageGroup, housingTypes, householdIncome, householdComposition, adoptionStats
 
-  // Extract unique list of provinces
-  const provinces = ['Select a Province', ...new Set(Object.keys(data))];
+  const provinces = ['Select a Province', ...new Set(data.filter(d => d.level === 'level4').map(d => d.province))]
+  const urbanicity = ['Select an Urbanicity', ...new Set(data.filter(d => d.level === 'level3').map(d => d.urbanicity))]
+  const innovation = ['Select an Innovation', ...new Set(data.filter(d => d.level === 'level2').map(d => d.innovation))]
 
-  // Update Urbanicity dropdown based on selected province
-  $: urbanicity = selectedProvince === 'Select a Province'
-    ? ['Select an Urbanicity']
-    : ['Select an Urbanicity', 'Urban', 'Rural'];
+  function calculateAdoptionStats(filters) {
+    // Step 1: Filter data based on selected dropdowns
+    const filteredData = data.filter(d =>
+      Object.entries(filters).every(([key, value]) =>
+        value === 'Select' || d[key] === value
+      )
+    );
 
-  $: {
-    if (selectedProvince === 'Select a Province' && selectedUrbanicity === 'Select an Urbanicity') {
-      filteredData = data['Total']['Total'];
-    } else if (selectedProvince !== 'Select a Province' && selectedUrbanicity === 'Select an Urbanicity') {
-      filteredData = data[selectedProvince]['Total'];
-    } else {
-      filteredData = data[selectedProvince][selectedUrbanicity];
-    }
+    // Step 2: Aggregate counts by `adoption`
+    const adoptionCounts = {};
+
+    filteredData.forEach(item => {
+      if(item.adoption) {
+        if (!adoptionCounts[item.adoption]) {
+          adoptionCounts[item.adoption] = 0;
+        }
+        adoptionCounts[item.adoption] += item.value; // Assuming `value` represents count
+      }
+    });
+
+    // Step 3: Calculate total count after filtering
+    const totalCount = Object.values(adoptionCounts).reduce((sum, count) => sum + count, 0);
+
+    const colorMap = {
+      "High Personal Support": "#00C2B2",
+      "Low Personal Support": "#00C2B2",
+      "High Perceived Neighbors' Support": "#2F4144",
+      "Low Perceived Neighbors' Support": "#6B7280"
+    };
+
+    // Step 4: Construct adoptionStats array
+    return Object.entries(adoptionCounts)
+      .map(([title, count]) => ({
+      title,
+      count,
+      percentage: totalCount > 0 ? ((count / totalCount) * 100).toFixed(2) : 0,
+      variant: colorMap[title]
+    }));
   }
 
-  $: ({ gender, ageGroup, householdIncome, drivers, barriers, householdComposition } = filteredData);
+  $: {
+    const filters = {
+      province: selectedProvince === 'Select a Province' ? 'Select' : selectedProvince,
+      urbanicity: selectedUrbanicity === 'Select an Urbanicity' ? 'Select' : selectedUrbanicity,
+      innovation: selectedInnovation === 'Select an Innovation' ? 'Select' : selectedInnovation,
+      adoption: 'Select' // Ignore adoption filter since we are calculating its stats
+    };
+
+    adoptionStats = calculateAdoptionStats(filters);
+    console.log(adoptionStats)
+  }
+
+  function filterAndAggregateData(filters) {
+    const filteredData = data
+      .filter(d => d.level === 'level0')
+      .filter(d =>
+      Object.entries(filters).every(([key, value]) =>
+        value === 'Select' || d[key] === value
+      )
+    );
+    console.log(filteredData)
+    const result = {};
+
+    // Step 1: Aggregate data by key
+    filteredData.forEach(item => {
+      const key = Object.entries(filters)
+        .filter(([_, value]) => value !== 'Select') // Include only selected filters
+        .map(([key, value]) => `${key}-${value}`)
+        .join('-') + `-${item.attribute}-${item.index}`;
+
+      if (!result[key]) {
+        result[key] = { ...item };
+      } else {
+        result[key].value += item.value;
+      }
+    });
+
+    // Step 2: Compute attributeTotal per group (group by attribute)
+    const groupedByAttribute = {};
+
+    Object.values(result).forEach(item => {
+      const groupKey = `${item.level}-${item.province}-${item.urbanicity}-${item.innovation}-${item.adoption}-${item.attribute}`;
+
+      if (!groupedByAttribute[groupKey]) {
+        groupedByAttribute[groupKey] = 0;
+      }
+      groupedByAttribute[groupKey] += item.value;
+    });
+
+    // Step 3: Assign attributeTotal and recalculate percentage
+    return Object.values(result).map(item => {
+      const groupKey = `${item.level}-${item.province}-${item.urbanicity}-${item.innovation}-${item.adoption}-${item.attribute}`;
+      const attributeTotal = groupedByAttribute[groupKey];
+
+      return {
+        ...item,
+        attributeTotal,
+        percentage: attributeTotal > 0 ? ((item.value / attributeTotal) * 100).toFixed(2) : 0
+      };
+    });
+  }
+
+  $: {
+    // Map dropdown values to filter parameters, treat 'Select' as a special value
+    const filters = {
+      province: selectedProvince === 'Select a Province' ? 'Select' : selectedProvince,
+      urbanicity: selectedUrbanicity === 'Select an Urbanicity' ? 'Select' : selectedUrbanicity,
+      innovation: selectedInnovation === 'Select an Innovation' ? 'Select' : selectedInnovation,
+      adoption: selectedAdoption === 'Select an Adoption' ? 'Select' : selectedAdoption
+    };
+
+    // Get the aggregated data based on the selected filters
+    dataToShow = filterAndAggregateData(filters);
+    
+    gender = dataToShow.filter(d => d.attribute === 'Gender')
+    ageGroup = dataToShow.filter(d => d.attribute === 'Age Group')
+    housingTypes = dataToShow.filter(d => d.attribute === 'Type of Housing')
+    householdIncome = dataToShow.filter(d => d.attribute === 'Household Income')
+    householdComposition = dataToShow.filter(d => d.attribute === 'Household Composition')
+    console.log(gender, ageGroup, housingTypes, householdIncome, householdComposition)
+  }
+
+  function selectAdoption(stat) {
+    selectedAdoption = stat.title;
+  }
 
   const canadaStats = {
     population: "40.1 million",
     area: "9.985 million km²",
     capital: "Ottawa"
   };
-
-  const adoptionStats = [
-    { title: "Adopted", count: 2345, percentage: 33, type: "homeowners", variant: "#2F4144" },
-    { title: "High Capability,\nHigh Willingness", count: 226, percentage: 18, type: "homeowners", variant: "#00C2B2" },
-    { title: "High Capability,\nLow Willingness", count: 138, percentage: 12, type: "homeowners", variant: "#00C2B2" },
-    { title: "Low Capability,\nHigh Willingness", count: 1653, percentage: 7, type: "homeowners", variant: "#2F4144" },
-    { title: "Low Capability,\nLow Willingness", count: 1214, percentage: 30, type: "homeowners", variant: "#6B7280" }
-  ];
 
   const locationData = [
     { region: "Ontario", value: 32, color: "bg-[#2F4144]" },
@@ -57,85 +161,61 @@
     { region: "Northern Territories", value: 8, color: "bg-[#D9E1E6]" }
   ];
 
-  const housingTypes = [
-    { label: "Renters", percentage: 80 },
-    { label: "Owners", percentage: 65 },
-    { label: "Type 3", percentage: 55 },
-    { label: "Type 4", percentage: 35 },
-    { label: "Type 5", percentage: 25 }
-  ];
-
-  const buildingTypes = [
-    { label: "Single family home", percentage: 75 },
-    { label: "Apartment (in a building with more than 12 units)", percentage: 65 },
-    { label: "Duplex, triplex, fourplex", percentage: 45 },
-    { label: "Accessory Dwelling Unit", percentage: 35 },
-    { label: "Townhouse, row house or semi-detached house", percentage: 25 }
-  ];
-
-  const householdSize = [
-    { label: "2 - 3 people", percentage: 85 },
-    { label: "4 - 6 people", percentage: 65 },
-    { label: "1 person", percentage: 45 },
-    { label: "7 - 10", percentage: 35 },
-    { label: "10 and more", percentage: 25 }
-  ];
-
   const attributes = [
-    { label: 'Household income', value: 'More than 130,000', percentage: 80 },
-    { label: 'Household income', value: '100,001-130,000', percentage: 75 },
-    { label: 'Age', value: '26-30', percentage: 60 },
-    { label: 'Age', value: '31-40', percentage: 40 },
-    { label: 'Gender', value: 'Men', percentage: 33 },
-    { label: 'Household income', value: '70,001-100,000', percentage: 25 },
-    { label: 'What is the relationship to you of the people living at your residence?', value: 'I live alone', percentage: 25 },
-    { label: 'What is the relationship to you of the people living at your residence?', value: 'your spouse or common-law partner', percentage: 20 },
-    { label: 'Gender', value: 'Women', percentage: 15 },
-    { label: 'Household income', value: '40,001-70,000', percentage: 15 }
+    { index: 'Household income', value: 'More than 130,000', percentage: 80 },
+    { index: 'Household income', value: '100,001-130,000', percentage: 75 },
+    { index: 'Age', value: '26-30', percentage: 60 },
+    { index: 'Age', value: '31-40', percentage: 40 },
+    { index: 'Gender', value: 'Men', percentage: 33 },
+    { index: 'Household income', value: '70,001-100,000', percentage: 25 },
+    { index: 'What is the relationship to you of the people living at your residence?', value: 'I live alone', percentage: 25 },
+    { index: 'What is the relationship to you of the people living at your residence?', value: 'your spouse or common-law partner', percentage: 20 },
+    { index: 'Gender', value: 'Women', percentage: 15 },
+    { index: 'Household income', value: '40,001-70,000', percentage: 15 }
   ];
   
   const trustSources = [
     {
-      label: "Information Verifiable through Other Sources",
+      index: "Information Verifiable through Other Sources",
       percentage: 90
     },
     {
-      label: "Expert or Professional Driven Information",
+      index: "Expert or Professional Driven Information",
       percentage: 75
     },
     {
-      label: "Information from Non-Politically or Financially Motivated Orgs",
+      index: "Information from Non-Politically or Financially Motivated Orgs",
       percentage: 60
     },
     {
-      label: "Information from Government Entities",
+      index: "Information from Government Entities",
       percentage: 45
     },
     {
-      label: "Professionally Presented Information",
+      index: "Professionally Presented Information",
       percentage: 30
     }
   ];
 
   const distrustSources = [
     {
-      label: "Social Media (e.g. Facebook and Instagram)",
+      index: "Social Media (e.g. Facebook and Instagram)",
       percentage: 85
     },
     {
-      label: "Online Marketplaces (e.g. FB Marketplace, Craigslist and Kijiji)",
+      index: "Online Marketplaces (e.g. FB Marketplace, Craigslist and Kijiji)",
       percentage: 70
     },
     {
-      label: "Commercial Content (e.g. From Real Estate Firms & Influencers)",
+      index: "Commercial Content (e.g. From Real Estate Firms & Influencers)",
       percentage: 55
     },
     {
-      label: "Profit-Driven Companies",
+      index: "Profit-Driven Companies",
       percentage: 40
     },
     {
-      label: "Political Sources or Organizations with Ulterior Motives",
+      index: "Political Sources or Organizations with Ulterior Motives",
       percentage: 25
     }
   ];
@@ -197,8 +277,10 @@
 
       <div class='flex md:block'>
         <label>Which innovation are you focused on?</label>
-        <select>
-          <option>Select an innovation</option>
+        <select bind:value={selectedInnovation} class="flex-1">
+          {#each innovation as i}
+            <option>{i}</option>
+          {/each}
         </select>
       </div>
 
@@ -255,19 +337,21 @@
              </button>
            </div>
       </div>
- 
+
       <div class="absolute bottom-0 w-full">
         <p class="subtitle-s ml-2 mb-3">Adoption Potential</p>
         <div class="grid grid-flow-col justify-stretch">
           {#each adoptionStats as stat}
-            <div class="border border-grey-linegreen m-2 p-4 rounded-lg relative">
-              <p class="caption">{stat.title}</p>
+            <div class="m-2 p-4 rounded-lg relative cursor-pointer {selectedAdoption === stat.title ? 'bg-primary-darkgreen border-transparent' : 'border border-grey-linegreen'}"
+                on:click={() => selectAdoption(stat)}
+             >
+              <p class="{selectedAdoption === stat.title ? 'text-white' : ''}">{stat.title}</p>
               <div class="flex justify-between items-end">
                 <div class="flex flex-col justify-end">
-                  <h4>{stat.count}</h4>
-                  <span class="body-s italic"> homeowners</span>
+                  <h4 class="{selectedAdoption === stat.title ? 'text-white' : ''}">{stat.count.toLocaleString()}</h4>
+                  <span class="italic {selectedAdoption === stat.title ? 'text-white' : ''}"> homeowners</span>
                 </div>
-                <DonutChart percentage={stat.percentage} color={stat.variant} />
+                <DonutChart percentage={stat.percentage} color={stat.variant} selected={selectedAdoption === stat.title ? true : false} />
               </div>
             </div>
           {/each}
@@ -280,7 +364,7 @@
     <p class="subtitle-s">Adoption Potential <span class="text-primary-darkgreen italic">for ADUs</span></p>
     <div class="space-y-2 mt-3">
       {#each adoptionStats as stat}
-        <div class="flex items-center justify-between border-t border-grey-linegreen">
+        <div class="flex items-center justify-between border-t border-grey-linegreen cursor-pointer" on:click={() => selectAdoption(stat)}>
           <div class='caption mt-5'>{stat.title}</div>          
           <div class="flex items-center gap-4">
             <span>
@@ -312,14 +396,12 @@
    
   <main class="min-h-screen bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
     <div class="w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-      <BarriersDrivers 
+      <!-- <BarriersDrivers 
         barriers={barriers}
         drivers={drivers}
-      />
+      /> -->
       <CurrentHousing 
         housingTypes={housingTypes}
-        buildingTypes={buildingTypes}
-        householdSize={householdSize}
         householdComposition={householdComposition}
       />
     </div>

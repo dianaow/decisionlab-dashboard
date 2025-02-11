@@ -14,12 +14,12 @@
   };
 
   // Sorting needs to assign a new array for reactivity
-  let sortedGender = [...gender].sort((x, y) => order.indexOf(x.label) - order.indexOf(y.label));
+  let sortedGender = [...gender].sort((x, y) => order.indexOf(x.index) - order.indexOf(y.index));
 
   // Assign colors dynamically
   sortedGender = sortedGender.map(item => ({
     ...item,
-    color: colorMap[item.label]
+    color: colorMap[item.index]
   }));
 
 </script>
@@ -62,7 +62,7 @@
           <div class="space-y-3">
             {#each ageGroup as group}
               <div class="flex items-center gap-3">
-                <p class="w-10">{group.label}</p>
+                <p class="w-20">{group.index}</p>
                   <div class="h-4 bg-primary-darkgreen rounded-full" 
                       style="width: {group.percentage}%"
                   ></div>
@@ -78,7 +78,7 @@
       <Container>
         <p class='caption'>Household Income</p>
         <div class="space-y-3">
-          {#each householdIncome as { label, percentage }}
+          {#each householdIncome as { index, percentage }}
             <div class="flex">
               <div class='w-3/4'>
                 <div class="flex items-center gap-3">
@@ -86,7 +86,7 @@
                       style="width: {percentage === 0 ? 1 : percentage}%"
                   ></div>
                 </div>
-                <p>{label}</p>
+                <p>{index}</p>
               </div>
               <div class="w-1/4 pl-6 body-s">{percentage}%</div>
             </div>

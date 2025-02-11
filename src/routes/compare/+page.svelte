@@ -6,11 +6,13 @@
   import BarriersDrivers from "../../components/BarriersDrivers.svelte";
   import CurrentHousing from "../../components/CurrentHousing.svelte";
   import KeyCommunication from "../../components/KeyCommunication.svelte";
-  import data from '../../data/data.json';
+  import data from '../../data/data2.json';
 
   let selectedProvince = 'Select a Province';
   let selectedUrbanicity = 'Select an Urbanicity';
-  let filteredData
+  let selectedInnovation = 'Select an Innovation';
+  let selectedAdoption = 'Select an Adoption';
+  let dataToShow
 
   // Extract unique list of provinces
   const provinces = ['Select a Province', ...new Set(Object.keys(data))];
@@ -20,17 +22,48 @@
     ? ['Select an Urbanicity']
     : ['Select an Urbanicity', 'Urban', 'Rural'];
 
-  $: {
-    if (selectedProvince === 'Select a Province' && selectedUrbanicity === 'Select an Urbanicity') {
-      filteredData = data['Total']['Total'];
-    } else if (selectedProvince !== 'Select a Province' && selectedUrbanicity === 'Select an Urbanicity') {
-      filteredData = data[selectedProvince]['Total'];
-    } else {
-      filteredData = data[selectedProvince][selectedUrbanicity];
-    }
+  function filterAndAggregateData(filters) {
+    const filteredData = data.filter(d => {
+      // Filter based on the values in the `filters` object
+      return Object.entries(filters).every(([key, value]) =>
+        value === 'Select' || d[key] === value
+      );
+    });
+
+    const result = {};
+    filteredData.forEach(item => {
+      // Construct the key dynamically based on selected filters
+      const key = Object.entries(filters)
+        .filter(([_, value]) => value !== 'Select')  // Only include filters that are not 'Select'
+        .map(([key, value]) => `${key}-${value}`)
+        .join('-') + `-${item.attribute}-${item.index}`;
+
+      if (!result[key]) {
+        result[key] = { ...item };
+      } else {
+        result[key].value += item.value;
+      }
+    });
+    console.log(result)
+
+    return Object.values(result);
   }
 
-  $: ({ gender, ageGroup, householdIncome, drivers, barriers, householdComposition } = filteredData);
+  $: {
+    // Map dropdown values to filter parameters, treat 'Select' as a special value
+    const filters = {
+      province: selectedProvince === 'Select a Province' ? 'Select' : selectedProvince,
+      urbanicity: selectedUrbanicity === 'Select an Urbanicity' ? 'Select' : selectedUrbanicity,
+      innovation: selectedInnovation === 'Select an Innovation' ? 'Select' : selectedInnovation,
+      adoption: selectedAdoption === 'Select an Adoption' ? 'Select' : selectedAdoption
+    };
+
+    // Get the aggregated data based on the selected filters
+    dataToShow = filterAndAggregateData(filters);
+  }
+
+  $: ({ gender, ageGroup, householdIncome, drivers, barriers, householdComposition } = dataToShow);
+
 
   const adoptionStats = [
     { title: "Adopted", count: 2345, percentage: 33, type: "homeowners", variant: "#2F4144" },
