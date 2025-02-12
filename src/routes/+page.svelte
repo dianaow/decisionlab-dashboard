@@ -7,17 +7,63 @@
   import BarriersDrivers from "../components/BarriersDrivers.svelte";
   import CurrentHousing from "../components/CurrentHousing.svelte";
   import KeyCommunication from "../components/KeyCommunication.svelte";
-  import data from '../data/data2.json';
+  import data from '../data/data3.json';
+  import barriers_drivers from '../data/barriers_drivers.json';
 
   let selectedProvince = 'Select a Province';
   let selectedUrbanicity = 'Select an Urbanicity';
   let selectedInnovation = 'Select an Innovation';
   let selectedAdoption = 'Select an Adoption';
-  let dataToShow, gender, ageGroup, housingTypes, householdIncome, householdComposition, adoptionStats
+  let dataToShow, gender, ageGroup, housingTypes, householdIncome, householdComposition, adoptionStats, barriers, drivers, locationData
 
-  const provinces = ['Select a Province', ...new Set(data.filter(d => d.level === 'level4').map(d => d.province))]
-  const urbanicity = ['Select an Urbanicity', ...new Set(data.filter(d => d.level === 'level3').map(d => d.urbanicity))]
-  const innovation = ['Select an Innovation', ...new Set(data.filter(d => d.level === 'level2').map(d => d.innovation))]
+  const provinces = ['Select a Province', ...new Set(data.map(d => d.province))]
+  const urbanicity = ['Select an Urbanicity', ...new Set(data.map(d => d.urbanicity))]
+  const innovation = ['Select an Innovation', ...new Set(data.map(d => d.innovation))]
+
+  // Function to get sum per province based on filter conditions
+  const getProvinceSumsAndPercentages = (data, filters) => {
+
+    const filteredData = data.filter(d =>
+      Object.entries(filters).every(([key, value]) =>
+        value === 'Select' || d[key] === value
+      )
+    );
+
+    const totalValue = filteredData.reduce((sum, item) => sum + item.value, 0);
+
+    const provinceSums = filteredData.reduce((acc, item) => {
+      acc[item.province] = (acc[item.province] || 0) + item.value;
+      return acc;
+    }, {});
+
+    const colorMap = {
+      Ontario : "#2F4144",
+      Quebec: "#5CD5C4",
+      "British Columbia": "#3D5D5B",
+      Alberta: "#94A3A8",
+      Prairies: "#467A76",
+      "Atlantic Canada": "#69A6A1",
+      North : "#D9E1E6"
+    };
+
+    // Convert to an array with percentage calculation
+    return Object.entries(provinceSums).map(([province, sum]) => ({
+      index: province,
+      value: sum,
+      percentage: totalValue > 0 ? parseFloat(((sum / totalValue) * 100).toFixed(2)) : 0,
+      color: colorMap[province]
+    }));
+  };
+
+  function calculateIndivAttr(data, filters, attr) {
+    const filteredData = filterAndAggregateData(data.filter(d => d.attribute === attr), filters)
+    filteredData.sort((a, b) => b.percentage - a.percentage)
+    filteredData.forEach((d,i) => {
+      d.number = i + 1
+      d.description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor."
+    })
+    return filteredData.slice(0,3)
+  }
 
   function calculateAdoptionStats(filters) {
     // Step 1: Filter data based on selected dropdowns
@@ -68,18 +114,16 @@
     };
 
     adoptionStats = calculateAdoptionStats(filters);
-    console.log(adoptionStats)
   }
 
-  function filterAndAggregateData(filters) {
+  function filterAndAggregateData(data, filters) {
     const filteredData = data
-      .filter(d => d.level === 'level0')
       .filter(d =>
       Object.entries(filters).every(([key, value]) =>
         value === 'Select' || d[key] === value
       )
     );
-    console.log(filteredData)
+
     const result = {};
 
     // Step 1: Aggregate data by key
@@ -131,14 +175,18 @@
     };
 
     // Get the aggregated data based on the selected filters
-    dataToShow = filterAndAggregateData(filters);
+    dataToShow = filterAndAggregateData(data, filters);
     
     gender = dataToShow.filter(d => d.attribute === 'Gender')
     ageGroup = dataToShow.filter(d => d.attribute === 'Age Group')
     housingTypes = dataToShow.filter(d => d.attribute === 'Type of Housing')
     householdIncome = dataToShow.filter(d => d.attribute === 'Household Income')
     householdComposition = dataToShow.filter(d => d.attribute === 'Household Composition')
-    console.log(gender, ageGroup, housingTypes, householdIncome, householdComposition)
+
+    barriers = calculateIndivAttr(barriers_drivers, filters, 'Barriers')
+    drivers = calculateIndivAttr(barriers_drivers, filters, 'Drivers')
+    
+    locationData = getProvinceSumsAndPercentages(data.filter(d => d.attribute === 'Gender'), {...filters, province: 'Select'})
   }
 
   function selectAdoption(stat) {
@@ -150,16 +198,6 @@
     area: "9.985 million km²",
     capital: "Ottawa"
   };
-
-  const locationData = [
-    { region: "Ontario", value: 32, color: "bg-[#2F4144]" },
-    { region: "Quebec", value: 22, color: "bg-[#5CD5C4]" },
-    { region: "British Columbia", value: 13, color: "bg-[#3D5D5B]" },
-    { region: "Alberta", value: 10, color: "bg-[#94A3A8]" },
-    { region: "Prairies", value: 8, color: "bg-[#467A76]" },
-    { region: "Atlantic Canada", value: 8, color: "bg-[#69A6A1]" },
-    { region: "Northern Territories", value: 8, color: "bg-[#D9E1E6]" }
-  ];
 
   const attributes = [
     { index: 'Household income', value: 'More than 130,000', percentage: 80 },
@@ -396,10 +434,10 @@
    
   <main class="min-h-screen bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
     <div class="w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-      <!-- <BarriersDrivers 
+      <BarriersDrivers 
         barriers={barriers}
         drivers={drivers}
-      /> -->
+      />
       <CurrentHousing 
         housingTypes={housingTypes}
         householdComposition={householdComposition}

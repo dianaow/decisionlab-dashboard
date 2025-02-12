@@ -23,7 +23,6 @@
       ...item,
       color: colorMap[item.index]
     }));
-    console.log('sortedGende', sortedGender)
   }
 </script>
 
@@ -106,21 +105,18 @@
           <div class="flex justify-center">
             <div class="mb-6 w-1/2">
               <DonutChartLarge
-                segments={locationData.map(loc => ({
-                  percentage: loc.value,
-                  color: loc.color.replace('bg-[', '').replace(']', '')
-                }))}
+                segments={locationData}
                 thickness="25%"
                 showPercentages={false}
               />
             </div>
           </div>
           <div class="grid grid-cols-1 gap-x-6 gap-y-1">
-            {#each locationData as { region, value, color }}
+            {#each locationData as { index, percentage, color }}
               <div class="flex items-center gap-2">
-                <div class="w-5 h-2.5 rounded-full {color}"></div>
-                <p>{region}</p>
-                <p class='body-s'>{value}%</p>
+                <div class="w-5 h-2.5 rounded-full" style={`background-color: ${color}`}></div>
+                <p>{index}</p>
+                <p class='body-s'>{percentage}%</p>
               </div>
             {/each}
           </div>

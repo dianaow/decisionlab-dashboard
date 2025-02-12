@@ -3,7 +3,7 @@
   export let thickness = '15%';
   export let showPercentages = true;
   export let backgroundColor = '#ffffff';
-  $: console.log(segments)
+
   // Calculate positions for labels
   $: segmentsWithPositions = segments.reduce((acc, segment, index) => {
     const startAngle = acc.currentAngle;

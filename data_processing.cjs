@@ -2,30 +2,52 @@ const fs = require('fs');
 const path = require('path');
 
 const fileInputName = path.join(__dirname, 'src/data/data1.tsv'); 
-const fileOutputName = path.join(__dirname, 'src/data/data2.json');
+const fileOutputName = path.join(__dirname, 'src/data/data3.json');
 
-fs.readFile(fileInputName, 'utf-8', (err, data) => {
+const file1InputName = path.join(__dirname, 'src/data/barriers_drivers.tsv'); 
+const file1OutputName = path.join(__dirname, 'src/data/barriers_drivers.json');
+
+fs.readFile(file1InputName, 'utf-8', (err, data) => {
     if (err) {
         console.error('Error reading the file:', err);
         return;
     }
 
     const flatData = flattenData(data)
+    
+    const jsonString = JSON.stringify(flatData, null, 2);
 
-    const aggregatedResults = calculateAggregations(flatData);
-
-    // Convert JSON array to string
-    const jsonString = JSON.stringify(aggregatedResults, null, 2);
-
-    // Write the JSON string to a file
-    fs.writeFile(fileOutputName, jsonString, 'utf-8', err => {
+    fs.writeFile(file1OutputName, jsonString, 'utf-8', err => {
         if (err) {
             console.error('Error writing the JSON file:', err);
         } else {
-            console.log('JSON file created successfully:', fileOutputName);
+            console.log('JSON file created successfully:', file1OutputName);
         }
     });
 });
+
+// fs.readFile(fileInputName, 'utf-8', (err, data) => {
+//     if (err) {
+//         console.error('Error reading the file:', err);
+//         return;
+//     }
+
+//     const flatData = flattenData(data)
+    
+//     //const aggregatedResults = calculateAggregations(flatData);
+
+//     // Convert JSON array to string
+//     const jsonString = JSON.stringify(flatData, null, 2);
+
+//     // Write the JSON string to a file
+//     fs.writeFile(fileOutputName, jsonString, 'utf-8', err => {
+//         if (err) {
+//             console.error('Error writing the JSON file:', err);
+//         } else {
+//             console.log('JSON file created successfully:', fileOutputName);
+//         }
+//     });
+// });
 
 function flattenData(dataString) {
     // Split the data into lines
@@ -70,7 +92,7 @@ function flattenData(dataString) {
                     adoption,
                     province,
                     urbanicity,
-                    value: parseFloat(value) || value
+                    value: parseFloat(value)
                 });
             }
         }
