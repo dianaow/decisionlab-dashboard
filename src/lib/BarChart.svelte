@@ -14,7 +14,7 @@
         <div class={`bg-grey-linegreen bg-opacity-20 rounded-full ${height} w-full`}>
           <div class={`h-full ${color} rounded-full`} style="width: {source.percentage}%"></div>
         </div>
-        <p class='ml-3'>{source.percentage}%</p>
+        <p class='ml-3 min-w-10 max-w-10'>{source.percentage}%</p>
       </div>
     </div>
   {/each}

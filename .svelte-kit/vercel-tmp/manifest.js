@@ -7,10 +7,10 @@ function __memo(fn) {
 return {
 	appDir: "_app",
 	appPath: "_app",
-	assets: new Set([]),
-	mimeTypes: {},
+	assets: new Set([".DS_Store","data/.DS_Store","data/canada_provinces.geojson"]),
+	mimeTypes: {".geojson":"application/geo+json"},
 	_: {
-		client: {start:"_app/immutable/entry/start.AX1AqAtI.js",app:"_app/immutable/entry/app.C1p96JHm.js",imports:["_app/immutable/entry/start.AX1AqAtI.js","_app/immutable/chunks/4_Ujj8xY.js","_app/immutable/chunks/DFfzNZs_.js","_app/immutable/chunks/qyiz6PpH.js","_app/immutable/entry/app.C1p96JHm.js","_app/immutable/chunks/DFfzNZs_.js","_app/immutable/chunks/CNIrhmfG.js","_app/immutable/chunks/50tq0GLg.js","_app/immutable/chunks/D7bmBnQz.js","_app/immutable/chunks/DjEgrkBV.js","_app/immutable/chunks/qyiz6PpH.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
+		client: {start:"_app/immutable/entry/start.BmnGcUhr.js",app:"_app/immutable/entry/app.BBFIsEnY.js",imports:["_app/immutable/entry/start.BmnGcUhr.js","_app/immutable/chunks/B8s_yuC2.js","_app/immutable/chunks/DUKe3tHL.js","_app/immutable/chunks/DIeogL5L.js","_app/immutable/chunks/B__n4pWK.js","_app/immutable/entry/app.BBFIsEnY.js","_app/immutable/chunks/DUKe3tHL.js","_app/immutable/chunks/DIeogL5L.js","_app/immutable/chunks/BijB-hok.js","_app/immutable/chunks/D8v46FJ-.js","_app/immutable/chunks/Bg9kRutz.js","_app/immutable/chunks/Dg12nDQp.js","_app/immutable/chunks/B__n4pWK.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
 		nodes: [
 			__memo(() => import('../output/server/nodes/0.js')),
 			__memo(() => import('../output/server/nodes/1.js')),

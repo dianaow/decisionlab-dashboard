@@ -27,12 +27,11 @@
 
   onMount(async () => {
     try {
-      const response = await fetch('src/data/canada_provinces.geojson');
+      const response = await fetch('/data/canada_provinces.geojson');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       mapGeoJSON = await response.json();
-      console.log('geosjon', mapGeoJSON)
       isLoading = false;
     } catch (error) {
       console.error('Error loading GeoJSON:', error);
@@ -212,7 +211,6 @@
     locationData = getProvinceStats(data.filter(d => d.attribute === 'Gender'), {...filters, province: 'Select'})
 
     if (!isLoading && mapGeoJSON?.features) {
-      console.log('geosjon', mapGeoJSON)
       selectedProvinceObj = mapGeoJSON.features.find(d => d.properties.name === selectedProvince)?.properties 
         || {
           name: 'Select a Province',
@@ -380,7 +378,7 @@
 
       <div class="absolute bottom-0 w-full">
         <p class="subtitle-s ml-2 mb-3">Adoption Potential</p>
-        <div class="grid grid-flow-col justify-stretch">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {#each adoptionStats as stat}
             <div class="m-2 p-4 rounded-lg relative cursor-pointer {selectedAdoption === stat.title ? 'bg-primary-darkgreen border-transparent' : 'bg-background-dark border border-grey-linegreen'}"
                 on:click={() => selectAdoption(stat)}

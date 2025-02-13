@@ -8,27 +8,6 @@
       "_internal.js"
     ]
   },
-  "_data.f0DgVlqk.css": {
-    "file": "_app/immutable/assets/data.f0DgVlqk.css",
-    "src": "_data.f0DgVlqk.css"
-  },
-  "_data.js": {
-    "file": "chunks/data.js",
-    "name": "data",
-    "imports": [
-      "_index.js",
-      "_utils.js"
-    ],
-    "css": [
-      "_app/immutable/assets/data.f0DgVlqk.css"
-    ],
-    "assets": [
-      "_app/immutable/assets/LyonDisplay-Regular.BbFNZsXf.otf",
-      "_app/immutable/assets/Sailec-Regular.DJE9Jnw2.otf",
-      "_app/immutable/assets/Sailec-Medium.A7pYl2SY.otf",
-      "_app/immutable/assets/Sailec-Bold.DgDY-ldu.otf"
-    ]
-  },
   "_equality.js": {
     "file": "chunks/equality.js",
     "name": "equality"
@@ -37,7 +16,7 @@
     "file": "chunks/exports.js",
     "name": "exports",
     "imports": [
-      "_utils.js",
+      "_index.js",
       "_equality.js"
     ]
   },
@@ -49,14 +28,9 @@
     "file": "chunks/internal.js",
     "name": "internal",
     "imports": [
-      "_utils.js",
-      "_equality.js",
-      "_index.js"
+      "_index.js",
+      "_equality.js"
     ]
-  },
-  "_utils.js": {
-    "file": "chunks/utils.js",
-    "name": "utils"
   },
   "node_modules/@sveltejs/kit/src/runtime/components/svelte-5/error.svelte": {
     "file": "entries/fallbacks/error.svelte.js",
@@ -65,7 +39,6 @@
     "isEntry": true,
     "imports": [
       "_index.js",
-      "_utils.js",
       "_exports.js"
     ]
   },
@@ -73,10 +46,7 @@
     "file": "entries/fallbacks/layout.svelte.js",
     "name": "entries/fallbacks/layout.svelte",
     "src": "node_modules/@sveltejs/kit/src/runtime/components/svelte-5/layout.svelte",
-    "isEntry": true,
-    "imports": [
-      "_index.js"
-    ]
+    "isEntry": true
   },
   "node_modules/@sveltejs/kit/src/runtime/server/index.js": {
     "file": "index.js",
@@ -110,25 +80,22 @@
     "src": "src/routes/+page.svelte",
     "isEntry": true,
     "imports": [
-      "_index.js",
-      "_data.js",
-      "_utils.js"
+      "_index.js"
     ],
     "css": [
-      "_app/immutable/assets/_page.C8l2cjL4.css"
+      "_app/immutable/assets/_page.DHn3gAT1.css"
+    ],
+    "assets": [
+      "_app/immutable/assets/LyonDisplay-Regular.BbFNZsXf.otf",
+      "_app/immutable/assets/Sailec-Regular.DJE9Jnw2.otf",
+      "_app/immutable/assets/Sailec-Medium.A7pYl2SY.otf",
+      "_app/immutable/assets/Sailec-Bold.DgDY-ldu.otf"
     ]
   },
   "src/routes/compare/+page.svelte": {
     "file": "entries/pages/compare/_page.svelte.js",
     "name": "entries/pages/compare/_page.svelte",
     "src": "src/routes/compare/+page.svelte",
-    "isEntry": true,
-    "imports": [
-      "_index.js",
-      "_data.js"
-    ],
-    "css": [
-      "_app/immutable/assets/_page.Dal8y7w6.css"
-    ]
+    "isEntry": true
   }
 }

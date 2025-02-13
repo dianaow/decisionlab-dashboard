@@ -1,4 +1,20 @@
 import "clsx";
+var is_array = Array.isArray;
+var index_of = Array.prototype.indexOf;
+var array_from = Array.from;
+var define_property = Object.defineProperty;
+var get_descriptor = Object.getOwnPropertyDescriptor;
+const noop = () => {
+};
+function fallback(value, fallback2, lazy = false) {
+  return value === void 0 ? lazy ? (
+    /** @type {() => V} */
+    fallback2()
+  ) : (
+    /** @type {V} */
+    fallback2
+  ) : value;
+}
 const HYDRATION_START = "[";
 const HYDRATION_END = "]";
 const HYDRATION_ERROR = {};
@@ -69,23 +85,34 @@ function get_parent_context(component_context) {
 }
 const BLOCK_OPEN = `<!--${HYDRATION_START}-->`;
 const BLOCK_CLOSE = `<!--${HYDRATION_END}-->`;
-function copy_payload({ out, css, head }) {
+function copy_payload({ out, css, head, uid }) {
   return {
     out,
     css: new Set(css),
     head: {
       title: head.title,
       out: head.out
-    }
+    },
+    uid
   };
 }
 function assign_payload(p1, p2) {
   p1.out = p2.out;
   p1.head = p2.head;
+  p1.uid = p2.uid;
 }
 let on_destroy = [];
+function props_id_generator() {
+  let uid = 1;
+  return () => "s" + uid++;
+}
 function render(component, options = {}) {
-  const payload = { out: "", css: /* @__PURE__ */ new Set(), head: { title: "", out: "" } };
+  const payload = {
+    out: "",
+    css: /* @__PURE__ */ new Set(),
+    head: { title: "", out: "" },
+    uid: options.uid ?? props_id_generator()
+  };
   const prev_on_destroy = on_destroy;
   on_destroy = [];
   payload.out += BLOCK_OPEN;
@@ -152,20 +179,27 @@ function ensure_array_like(array_like_or_iterator) {
 }
 export {
   HYDRATION_ERROR as H,
-  HYDRATION_START as a,
-  HYDRATION_END as b,
-  pop as c,
-  current_component as d,
-  escape_html as e,
-  bind_props as f,
-  getContext as g,
-  copy_payload as h,
-  assign_payload as i,
-  ensure_array_like as j,
-  stringify as k,
-  add_styles as l,
-  slot as m,
+  is_array as a,
+  HYDRATION_START as b,
+  HYDRATION_END as c,
+  define_property as d,
+  array_from as e,
+  pop as f,
+  get_descriptor as g,
+  getContext as h,
+  index_of as i,
+  escape_html as j,
+  current_component as k,
+  bind_props as l,
+  fallback as m,
+  noop as n,
+  stringify as o,
   push as p,
+  add_styles as q,
   render as r,
-  setContext as s
+  setContext as s,
+  ensure_array_like as t,
+  slot as u,
+  copy_payload as v,
+  assign_payload as w
 };
