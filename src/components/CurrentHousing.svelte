@@ -24,7 +24,7 @@
 
 <Card title="Current Housing Circumstance">
   <Container>
-    <div class="grid grid-cols-1 gap-8">
+    <div class="grid md:grid-cols-2 gap-8">
       <div>
         <p class='caption'>Type of housing</p>
         <BarChart

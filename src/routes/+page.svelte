@@ -7,64 +7,29 @@
   import BarriersDrivers from "../components/BarriersDrivers.svelte";
   import CurrentHousing from "../components/CurrentHousing.svelte";
   import KeyCommunication from "../components/KeyCommunication.svelte";
-  import data from '../data/data3.json';
+  import data from '../data/data.json';
   import barriers_drivers from '../data/barriers_drivers.json';
 
-  let selectedProvince = 'Select a Province';
+  let selectedProvinceObj = {
+    name: 'Select a Province',
+    population: "40.1 million",
+    area: "9.985 million",
+    capital: "Ottawa"
+  };
+  $: selectedProvince = selectedProvinceObj.name
+
   let selectedUrbanicity = 'Select an Urbanicity';
   let selectedInnovation = 'Select an Innovation';
   let selectedAdoption = 'Select an Adoption';
-  let dataToShow, gender, ageGroup, housingTypes, householdIncome, householdComposition, adoptionStats, barriers, drivers, locationData
+  let dataToShow, gender, ageGroup, housingTypes, householdIncome, householdComposition, adoptionStats, barriers, drivers, locationData, keyInfo
 
   const provinces = ['Select a Province', ...new Set(data.map(d => d.province))]
   const urbanicity = ['Select an Urbanicity', ...new Set(data.map(d => d.urbanicity))]
   const innovation = ['Select an Innovation', ...new Set(data.map(d => d.innovation))]
-
-  // Function to get sum per province based on filter conditions
-  const getProvinceSumsAndPercentages = (data, filters) => {
-
-    const filteredData = data.filter(d =>
-      Object.entries(filters).every(([key, value]) =>
-        value === 'Select' || d[key] === value
-      )
-    );
-
-    const totalValue = filteredData.reduce((sum, item) => sum + item.value, 0);
-
-    const provinceSums = filteredData.reduce((acc, item) => {
-      acc[item.province] = (acc[item.province] || 0) + item.value;
-      return acc;
-    }, {});
-
-    const colorMap = {
-      Ontario : "#2F4144",
-      Quebec: "#5CD5C4",
-      "British Columbia": "#3D5D5B",
-      Alberta: "#94A3A8",
-      Prairies: "#467A76",
-      "Atlantic Canada": "#69A6A1",
-      North : "#D9E1E6"
-    };
-
-    // Convert to an array with percentage calculation
-    return Object.entries(provinceSums).map(([province, sum]) => ({
-      index: province,
-      value: sum,
-      percentage: totalValue > 0 ? parseFloat(((sum / totalValue) * 100).toFixed(2)) : 0,
-      color: colorMap[province]
-    }));
-  };
-
-  function calculateIndivAttr(data, filters, attr) {
-    const filteredData = filterAndAggregateData(data.filter(d => d.attribute === attr), filters)
-    filteredData.sort((a, b) => b.percentage - a.percentage)
-    filteredData.forEach((d,i) => {
-      d.number = i + 1
-      d.description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor."
-    })
-    return filteredData.slice(0,3)
+  function selectAdoption(stat) {
+    selectedAdoption = stat.title;
   }
-
+  
   function calculateAdoptionStats(filters) {
     // Step 1: Filter data based on selected dropdowns
     const filteredData = data.filter(d =>
@@ -116,6 +81,49 @@
     adoptionStats = calculateAdoptionStats(filters);
   }
 
+  function getProvinceStats(data, filters) {
+    const filteredData = data.filter(d =>
+      Object.entries(filters).every(([key, value]) =>
+        value === 'Select' || d[key] === value
+      )
+    );
+
+    const totalValue = filteredData.reduce((sum, item) => sum + item.value, 0);
+
+    const provinceSums = filteredData.reduce((acc, item) => {
+      acc[item.province] = (acc[item.province] || 0) + item.value;
+      return acc;
+    }, {});
+
+    const colorMap = {
+      Ontario : "#319187",
+      Quebec: "#23CEBC",
+      "British Columbia": "#E38730",
+      Alberta: "#F5AC91",
+      Prairies: "#4598BC",
+      "Atlantic Canada": "#8CC7D3",
+      North : "#C6D0D0"
+    };
+
+    // Convert to an array with percentage calculation
+    return Object.entries(provinceSums).map(([province, sum]) => ({
+      index: province,
+      value: sum,
+      percentage: totalValue > 0 ? parseFloat(((sum / totalValue) * 100).toFixed(2)) : 0,
+      color: colorMap[province]
+    }));
+  };
+
+  function getBarriersDriversStats(data, filters, attr) {
+    const filteredData = filterAndAggregateData(data.filter(d => d.attribute === attr), filters)
+    filteredData.sort((a, b) => b.percentage - a.percentage)
+    filteredData.forEach((d,i) => {
+      d.number = i + 1
+      d.description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor."
+    })
+    return filteredData.slice(0,3)
+  }
+
   function filterAndAggregateData(data, filters) {
     const filteredData = data
       .filter(d =>
@@ -141,21 +149,23 @@
     });
 
     // Step 2: Compute attributeTotal per group (group by attribute)
-    const groupedByAttribute = {};
+    const attributeTotal = filteredData.filter(d => d.attribute === 'Gender').reduce((sum, item) => sum + item.value, 0);
 
-    Object.values(result).forEach(item => {
-      const groupKey = `${item.level}-${item.province}-${item.urbanicity}-${item.innovation}-${item.adoption}-${item.attribute}`;
+    // const groupedByAttribute = {};
 
-      if (!groupedByAttribute[groupKey]) {
-        groupedByAttribute[groupKey] = 0;
-      }
-      groupedByAttribute[groupKey] += item.value;
-    });
+    // Object.values(result).forEach(item => {
+    //   const groupKey = `${item.level}-${item.province}-${item.urbanicity}-${item.innovation}-${item.adoption}-${item.attribute}`;
+
+    //   if (!groupedByAttribute[groupKey]) {
+    //     groupedByAttribute[groupKey] = 0;
+    //   }
+    //   groupedByAttribute[groupKey] += item.value;
+    // });
 
     // Step 3: Assign attributeTotal and recalculate percentage
     return Object.values(result).map(item => {
-      const groupKey = `${item.level}-${item.province}-${item.urbanicity}-${item.innovation}-${item.adoption}-${item.attribute}`;
-      const attributeTotal = groupedByAttribute[groupKey];
+      //const groupKey = `${item.level}-${item.province}-${item.urbanicity}-${item.innovation}-${item.adoption}-${item.attribute}`;
+      //const attributeTotal = groupedByAttribute[groupKey];
 
       return {
         ...item,
@@ -166,7 +176,6 @@
   }
 
   $: {
-    // Map dropdown values to filter parameters, treat 'Select' as a special value
     const filters = {
       province: selectedProvince === 'Select a Province' ? 'Select' : selectedProvince,
       urbanicity: selectedUrbanicity === 'Select an Urbanicity' ? 'Select' : selectedUrbanicity,
@@ -174,7 +183,6 @@
       adoption: selectedAdoption === 'Select an Adoption' ? 'Select' : selectedAdoption
     };
 
-    // Get the aggregated data based on the selected filters
     dataToShow = filterAndAggregateData(data, filters);
     
     gender = dataToShow.filter(d => d.attribute === 'Gender')
@@ -182,22 +190,13 @@
     housingTypes = dataToShow.filter(d => d.attribute === 'Type of Housing')
     householdIncome = dataToShow.filter(d => d.attribute === 'Household Income')
     householdComposition = dataToShow.filter(d => d.attribute === 'Household Composition')
+    keyInfo = dataToShow.filter(d => d.attribute === 'Key Pieces of Information')
 
-    barriers = calculateIndivAttr(barriers_drivers, filters, 'Barriers')
-    drivers = calculateIndivAttr(barriers_drivers, filters, 'Drivers')
+    barriers = getBarriersDriversStats(barriers_drivers, filters, 'Barriers')
+    drivers = getBarriersDriversStats(barriers_drivers, filters, 'Drivers')
     
-    locationData = getProvinceSumsAndPercentages(data.filter(d => d.attribute === 'Gender'), {...filters, province: 'Select'})
+    locationData = getProvinceStats(data.filter(d => d.attribute === 'Gender'), {...filters, province: 'Select'})
   }
-
-  function selectAdoption(stat) {
-    selectedAdoption = stat.title;
-  }
-
-  const canadaStats = {
-    population: "40.1 million",
-    area: "9.985 million km²",
-    capital: "Ottawa"
-  };
 
   const attributes = [
     { index: 'Household income', value: 'More than 130,000', percentage: 80 },
@@ -257,34 +256,6 @@
       percentage: 25
     }
   ];
-
-  const channels = [
-    {
-      icon: "🌐",
-      title: "Internet or Online Sources",
-      description: "At vero eos et accusamus"
-    },
-    {
-      icon: "💡",
-      title: "Word-of-Mouth",
-      description: "At vero eos et accusamus"
-    },
-    {
-      icon: "📍",
-      title: "Site Visits",
-      description: "At vero eos et accusamus"
-    },
-    {
-      icon: "📺",
-      title: "Traditional Media",
-      description: "At vero eos et accusamus"
-    },
-    {
-      icon: "➕",
-      title: "Other Sources",
-      description: "At vero eos et accusamus"
-    }
-  ];
 </script>
 
 <div class="flex flex-col md:flex-row h-auto">
@@ -334,21 +305,21 @@
  <div class='w-full bg-background-dark'>
   <main class="hidden sm:block h-screen bg-background-dark px-4 sm:px-8 pb-2 my-3 sm:my-0">
     <div class="relative h-full">
-      <Map bind:selectedProvince />
-      <div class="absolute top-2 left-0 bg-white p-4 rounded-lg">
+      <Map bind:selectedProvinceObj />
+      <div class="absolute top-2 left-0 bg-white p-4 rounded-lg min-w-50">
          <h2 class="mb-4">{selectedProvince === 'Select a Province' ? 'Canada' : selectedProvince}</h2>
          <div class="space-y-2">
            <div class="flex gap-4">
-             <span class="caption mb-0">Population</span>
-             <span class='body-s'>{canadaStats.population}</span>
+             <span class="caption1">Population</span>
+             <span class='body-s'>{selectedProvinceObj.population || "-"}</span>
            </div>
            <div class="flex gap-4">
-             <span class="caption mb-0">Area</span>
-             <span class='body-s'>{canadaStats.area}</span>
+             <span class="caption1">Area</span>
+             <span class='body-s'>{selectedProvinceObj.area || "-" + " km²"}</span>
            </div>
            <div class="flex gap-4">
-             <span class="caption mb-0">Capital</span>
-             <span class='body-s'>{canadaStats.capital}</span>
+             <span class="caption1">Capital</span>
+             <span class='body-s'>{selectedProvinceObj.capital || "-"}</span>
            </div>
          </div>
       </div>
@@ -380,14 +351,14 @@
         <p class="subtitle-s ml-2 mb-3">Adoption Potential</p>
         <div class="grid grid-flow-col justify-stretch">
           {#each adoptionStats as stat}
-            <div class="m-2 p-4 rounded-lg relative cursor-pointer {selectedAdoption === stat.title ? 'bg-primary-darkgreen border-transparent' : 'border border-grey-linegreen'}"
+            <div class="m-2 p-4 rounded-lg relative cursor-pointer {selectedAdoption === stat.title ? 'bg-primary-darkgreen border-transparent' : 'bg-background-dark border border-grey-linegreen'}"
                 on:click={() => selectAdoption(stat)}
              >
               <p class="{selectedAdoption === stat.title ? 'text-white' : ''}">{stat.title}</p>
               <div class="flex justify-between items-end">
                 <div class="flex flex-col justify-end">
                   <h4 class="{selectedAdoption === stat.title ? 'text-white' : ''}">{stat.count.toLocaleString()}</h4>
-                  <span class="italic {selectedAdoption === stat.title ? 'text-white' : ''}"> homeowners</span>
+                  <span class="font-secondary text-xs leading-[18px] font-medium italic {selectedAdoption === stat.title ? 'text-white' : 'text-primary-darkgreen'}"> homeowners</span>
                 </div>
                 <DonutChart percentage={stat.percentage} color={stat.variant} selected={selectedAdoption === stat.title ? true : false} />
               </div>
@@ -447,7 +418,7 @@
 
   <main class="flex bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
     <KeyCommunication 
-      channels={channels}
+      keyInfo={keyInfo}
       trustSources={trustSources}
       distrustSources={distrustSources}
     />

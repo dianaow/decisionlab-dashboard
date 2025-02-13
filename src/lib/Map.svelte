@@ -4,26 +4,57 @@
   import { geoMercator, geoPath } from 'd3-geo';
   import { zoom, zoomIdentity } from 'd3-zoom';
   import { transition } from 'd3-transition';
-  
-  export let selectedProvince = '';
-  
-  let svg;
-  let mapGroup;
-  let container;
+  import { fade } from 'svelte/transition';
+
+  export let selectedProvinceObj = {};
+
+  $: selectedProvince = selectedProvinceObj?.name
+
   let width;
   let height;
   let resizeObserver;
-  
+  let container, svg, mapGroup;
+  let tooltipContent = "";
+  let tooltipX = 0, tooltipY = 0;
+  let tooltipVisible = false;
+  let currentTransform = zoomIdentity; // Store current transform
+  let previousProvince = ''; // Track previous selection
+  let isInternalUpdate = false; // Flag for internal updates
+
   const projection = geoMercator()
     .center([-96, 60.5]);
     
   const path = geoPath().projection(projection);
-  
+
   const mapZoom = zoom()
     .scaleExtent([1, 6])
     .on('zoom', (event) => {
+      currentTransform = event.transform; // Update current transform
       select(mapGroup).attr('transform', event.transform);
+      
+      // Update tooltip position if visible
+      if (tooltipVisible) {
+        updateTooltipPosition();
+      }
     });
+
+  function updateTooltipPosition() {
+    const matchingPolygons = select(mapGroup)
+      .selectAll('path')
+      .filter(p => p.properties.name === tooltipContent.split('>')[1].split('<')[0].trim());
+
+    const centroids = matchingPolygons.nodes().map(node => {
+      const polygon = select(node).datum();
+      return path.centroid(polygon);
+    });
+
+    const avgX = centroids.reduce((sum, c) => sum + c[0], 0) / centroids.length;
+    const avgY = centroids.reduce((sum, c) => sum + c[1], 0) / centroids.length;
+
+    // Apply current transform to tooltip coordinates
+    tooltipX = currentTransform.applyX(avgX);
+    tooltipY = currentTransform.applyY(avgY) - 60 * currentTransform.k; // Scale offset with zoom
+  }
     
   function updateDimensions() {
     if (container) {
@@ -46,10 +77,14 @@
           .transition()
           .duration(300)
           .attr('d', path);
+
+        if (tooltipVisible) {
+          updateTooltipPosition();
+        }
       }
     }
   }
-  
+
   onMount(async () => {
     resizeObserver = new ResizeObserver(updateDimensions);
     resizeObserver.observe(container);
@@ -62,7 +97,7 @@
     svgElement.call(mapZoom);
     
     try {
-      const response = await fetch('https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/canada.geojson');
+      const response = await fetch('src/data/canada_provinces.geojson');
       const data = await response.json();
       
       g.selectAll('path')
@@ -74,66 +109,119 @@
         .attr('stroke', '#EBF0F0')
         .attr('stroke-width', '1')
         .on('click', (event, d) => {
-          selectedProvince = d.properties.name;
+          isInternalUpdate = true;
+          selectedProvinceObj = d.properties;
           zoomToProvince(d);
         })
-        .on('mouseover', function() {
-          select(this)
-            .transition()
-            .duration(200)
-            .attr('fill', '#999');
+        .on('mouseover', function(event, d) {
+          const matchingPolygons = g.selectAll('path')
+            .filter(p => p.properties.name === d.properties.name);
+
+          matchingPolygons.attr('fill', '#999');
+
+          const centroids = matchingPolygons.nodes().map(node => {
+            const polygon = select(node).datum();
+            return path.centroid(polygon);
+          });
+
+          const avgX = centroids.reduce((sum, c) => sum + c[0], 0) / centroids.length;
+          const avgY = centroids.reduce((sum, c) => sum + c[1], 0) / centroids.length;
+
+          tooltipContent = `
+            <h3 class="mb-3">${d.properties.name}</h3>
+            <div class="space-y-2">
+              <div class="flex gap-4">
+                <span class="caption1">Population</span>
+                <span class='body-s'>${d.properties.population || "-"}</span>
+              </div>
+              <div class="flex gap-4">
+                <span class="caption1">Area</span>
+                <span class='body-s'>${d.properties.area || "-"} km²</span>
+              </div>
+              <div class="flex gap-4">
+                <span class="caption1">Capital</span>
+                <span class='body-s'>${d.properties.capital || "-"}</span>
+              </div>
+            </div>
+          `;
+
+          // Apply current transform to tooltip coordinates
+          tooltipX = currentTransform.applyX(avgX);
+          tooltipY = currentTransform.applyY(avgY) - 60 * currentTransform.k;
+          tooltipVisible = true;
         })
         .on('mouseout', function(event, d) {
-          select(this)
-            .transition()
-            .duration(200)
-            .attr('fill', d.properties.name === selectedProvince ? '#718593' : '#E3E2E2');
+          g.selectAll('path')
+            .filter(p => p.properties.name === d.properties.name)
+            .attr('fill', p => p.properties.name === selectedProvince ? '#718593' : '#E3E2E2');
+
+          tooltipVisible = false;
         });
     } catch (error) {
       console.error('Error loading map data:', error);
     }
   });
-  
+
   onDestroy(() => {
     if (resizeObserver) {
       resizeObserver.disconnect();
     }
   });
-  
-  $: if (mapGroup && selectedProvince) {
+
+  $: if (mapGroup && selectedProvince !== previousProvince) {
+    previousProvince = selectedProvince;
+    
     select(mapGroup)
       .selectAll('.province')
       .transition()
       .duration(300)
-      .attr('fill', d => d.properties.name === selectedProvince ? '#666' : '#ccc');
-    
-    const selectedFeature = select(mapGroup)
-      .selectAll('.province')
-      .filter(d => d.properties.name === selectedProvince)
-      .datum();
-    
-    if (selectedFeature) {
-      zoomToProvince(selectedFeature);
+      .attr('fill', d => d.properties.name === selectedProvince ? '#718593' : '#E3E2E2');
+
+    // Only trigger zoom if the change came from outside
+    if (!isInternalUpdate) {
+      const selectedFeatures = select(mapGroup)
+        .selectAll('.province')
+        .filter(d => d.properties.name === selectedProvince)
+        .data();
+
+      if (selectedFeatures.length > 0) {
+        zoomToProvince(selectedFeatures);
+      }
     }
-  }
-  
-  function zoomToProvince(feature) {
-    const bounds = path.bounds(feature);
-    const dx = bounds[1][0] - bounds[0][0];
-    const dy = bounds[1][1] - bounds[0][1];
-    const x = (bounds[0][0] + bounds[1][0]) / 2;
-    const y = (bounds[0][1] + bounds[1][1]) / 2;
-    const scale = 0.5 / Math.max(dx / width, dy / height);
-    const translate = [width / 2 - scale * x, height / 2 - scale * y];
     
+    isInternalUpdate = false; // Reset the flag
+  }
+
+  function zoomToProvince(features) {
+    const featureArray = Array.isArray(features) ? features : [features];
+  
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+    featureArray.forEach(feature => {
+      const bounds = path.bounds(feature);
+      minX = Math.min(minX, bounds[0][0]);
+      minY = Math.min(minY, bounds[0][1]);
+      maxX = Math.max(maxX, bounds[1][0]);
+      maxY = Math.max(maxY, bounds[1][1]);
+    });
+
+    const dx = maxX - minX;
+    const dy = maxY - minY;
+    const x = (minX + maxX) / 2;
+    const y = (minY + maxY) / 2;
+    const scale = Math.min(1, 0.5 / Math.max(dx / width, dy / height));
+    const translate = [width / 2 - scale * x, height / 2 - scale * y];
+
     select(svg)
       .transition()
       .duration(750)
       .call(mapZoom.transform, zoomIdentity
         .translate(translate[0], translate[1])
         .scale(scale));
+      
+    tooltipVisible = false;
   }
-  
+
   function resetZoom() {
     select(svg)
       .transition()
@@ -151,6 +239,17 @@
   >
     <g bind:this={mapGroup}></g>
   </svg>
+
+  {#if tooltipVisible}
+    <div 
+      class="tooltip" 
+      style="left: {tooltipX}px; top: {tooltipY}px;"
+      transition:fade
+    >
+      {@html tooltipContent}
+      <div class="tooltip-arrow"></div>
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -175,5 +274,29 @@
   
   :global(.province:hover) {
     fill: #999;
+  }
+
+  .tooltip {
+    position: absolute;
+    background: #fff;
+    border-radius: 8px;
+    border: #C6D0D0;
+    padding: 16px;
+    pointer-events: none;
+    transform: translate(-50%, -100%);
+    transition: opacity 0.2s ease-in-out;
+    white-space: nowrap;
+  }
+
+  .tooltip-arrow {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 10px solid #fff;
+    transform: translateX(-50%);
   }
 </style>

@@ -3,22 +3,16 @@
   import Card from '../lib/Card.svelte';
   import Container from '../lib/Container.svelte';
 
-  export let channels, trustSources, distrustSources
+  export let keyInfo, trustSources, distrustSources
 </script>
 
 <Card title="Key Communication Considerations">  
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <Container>
-      <p class='caption'>Primary Channels for Housing Information</p>
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {#each channels as channel}
-          <div class="border border-grey-linegreen rounded-lg p-4">
-            <div class="text-2xl mb-2">{channel.icon}</div>
-            <p class='caption'>{channel.title}</p>
-            <p class="text-grey-light">{channel.description}</p>
-          </div>
-        {/each}
-      </div>
+      <p class='caption'>Key Pieces of Information</p>
+      <BarChart
+        data={keyInfo}
+      />
     </Container>
 
     <Container>

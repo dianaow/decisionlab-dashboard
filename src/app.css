@@ -77,3 +77,7 @@ p {
 .caption {
   @apply font-secondary text-xs leading-[16.08px] font-bold text-primary-darkgreen mb-3;
 }
+
+.caption1 {
+  @apply font-secondary text-xs leading-[16.08px] font-bold text-grey-light;
+}
