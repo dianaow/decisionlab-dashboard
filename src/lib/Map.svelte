@@ -6,9 +6,8 @@
   import { transition } from 'd3-transition';
   import { fade } from 'svelte/transition';
 
-  export let selectedProvinceObj = {};
-
-  $: selectedProvince = selectedProvinceObj?.name
+  export let data
+  export let selectedProvince = '';
 
   let width;
   let height;
@@ -86,6 +85,7 @@
   }
 
   onMount(async () => {
+    console.log('map', data)
     resizeObserver = new ResizeObserver(updateDimensions);
     resizeObserver.observe(container);
     
@@ -96,9 +96,9 @@
     
     svgElement.call(mapZoom);
     
-    try {
-      const response = await fetch('src/data/canada_provinces.geojson');
-      const data = await response.json();
+    // try {
+    //   const response = await fetch('src/data/canada_provinces.geojson');
+    //   const data = await response.json();
       
       g.selectAll('path')
         .data(data.features)
@@ -110,7 +110,7 @@
         .attr('stroke-width', '1')
         .on('click', (event, d) => {
           isInternalUpdate = true;
-          selectedProvinceObj = d.properties;
+          selectedProvince = d.properties.name;
           zoomToProvince(d);
         })
         .on('mouseover', function(event, d) {
@@ -157,9 +157,9 @@
 
           tooltipVisible = false;
         });
-    } catch (error) {
-      console.error('Error loading map data:', error);
-    }
+    // } catch (error) {
+    //   console.error('Error loading map data:', error);
+    // }
   });
 
   onDestroy(() => {
@@ -209,7 +209,7 @@
     const dy = maxY - minY;
     const x = (minX + maxX) / 2;
     const y = (minY + maxY) / 2;
-    const scale = Math.min(1, 0.5 / Math.max(dx / width, dy / height));
+    const scale = Math.max(1, 0.5 / Math.max(dx / width, dy / height));
     const translate = [width / 2 - scale * x, height / 2 - scale * y];
 
     select(svg)

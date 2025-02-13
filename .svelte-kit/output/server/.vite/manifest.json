@@ -1,0 +1,134 @@
+{
+  ".svelte-kit/generated/server/internal.js": {
+    "file": "internal.js",
+    "name": "internal",
+    "src": ".svelte-kit/generated/server/internal.js",
+    "isEntry": true,
+    "imports": [
+      "_internal.js"
+    ]
+  },
+  "_data.f0DgVlqk.css": {
+    "file": "_app/immutable/assets/data.f0DgVlqk.css",
+    "src": "_data.f0DgVlqk.css"
+  },
+  "_data.js": {
+    "file": "chunks/data.js",
+    "name": "data",
+    "imports": [
+      "_index.js",
+      "_utils.js"
+    ],
+    "css": [
+      "_app/immutable/assets/data.f0DgVlqk.css"
+    ],
+    "assets": [
+      "_app/immutable/assets/LyonDisplay-Regular.BbFNZsXf.otf",
+      "_app/immutable/assets/Sailec-Regular.DJE9Jnw2.otf",
+      "_app/immutable/assets/Sailec-Medium.A7pYl2SY.otf",
+      "_app/immutable/assets/Sailec-Bold.DgDY-ldu.otf"
+    ]
+  },
+  "_equality.js": {
+    "file": "chunks/equality.js",
+    "name": "equality"
+  },
+  "_exports.js": {
+    "file": "chunks/exports.js",
+    "name": "exports",
+    "imports": [
+      "_utils.js",
+      "_equality.js"
+    ]
+  },
+  "_index.js": {
+    "file": "chunks/index.js",
+    "name": "index"
+  },
+  "_internal.js": {
+    "file": "chunks/internal.js",
+    "name": "internal",
+    "imports": [
+      "_utils.js",
+      "_equality.js",
+      "_index.js"
+    ]
+  },
+  "_utils.js": {
+    "file": "chunks/utils.js",
+    "name": "utils"
+  },
+  "node_modules/@sveltejs/kit/src/runtime/components/svelte-5/error.svelte": {
+    "file": "entries/fallbacks/error.svelte.js",
+    "name": "entries/fallbacks/error.svelte",
+    "src": "node_modules/@sveltejs/kit/src/runtime/components/svelte-5/error.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index.js",
+      "_utils.js",
+      "_exports.js"
+    ]
+  },
+  "node_modules/@sveltejs/kit/src/runtime/components/svelte-5/layout.svelte": {
+    "file": "entries/fallbacks/layout.svelte.js",
+    "name": "entries/fallbacks/layout.svelte",
+    "src": "node_modules/@sveltejs/kit/src/runtime/components/svelte-5/layout.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index.js"
+    ]
+  },
+  "node_modules/@sveltejs/kit/src/runtime/server/index.js": {
+    "file": "index.js",
+    "name": "index",
+    "src": "node_modules/@sveltejs/kit/src/runtime/server/index.js",
+    "isEntry": true,
+    "imports": [
+      "_internal.js",
+      "_exports.js"
+    ]
+  },
+  "src/fonts/LyonDisplay/LyonDisplay-Regular.otf": {
+    "file": "_app/immutable/assets/LyonDisplay-Regular.BbFNZsXf.otf",
+    "src": "src/fonts/LyonDisplay/LyonDisplay-Regular.otf"
+  },
+  "src/fonts/Sailec/Sailec-Bold.otf": {
+    "file": "_app/immutable/assets/Sailec-Bold.DgDY-ldu.otf",
+    "src": "src/fonts/Sailec/Sailec-Bold.otf"
+  },
+  "src/fonts/Sailec/Sailec-Medium.otf": {
+    "file": "_app/immutable/assets/Sailec-Medium.A7pYl2SY.otf",
+    "src": "src/fonts/Sailec/Sailec-Medium.otf"
+  },
+  "src/fonts/Sailec/Sailec-Regular.otf": {
+    "file": "_app/immutable/assets/Sailec-Regular.DJE9Jnw2.otf",
+    "src": "src/fonts/Sailec/Sailec-Regular.otf"
+  },
+  "src/routes/+page.svelte": {
+    "file": "entries/pages/_page.svelte.js",
+    "name": "entries/pages/_page.svelte",
+    "src": "src/routes/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index.js",
+      "_data.js",
+      "_utils.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.C8l2cjL4.css"
+    ]
+  },
+  "src/routes/compare/+page.svelte": {
+    "file": "entries/pages/compare/_page.svelte.js",
+    "name": "entries/pages/compare/_page.svelte",
+    "src": "src/routes/compare/+page.svelte",
+    "isEntry": true,
+    "imports": [
+      "_index.js",
+      "_data.js"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.Dal8y7w6.css"
+    ]
+  }
+}

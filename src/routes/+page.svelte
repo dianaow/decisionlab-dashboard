@@ -1,4 +1,5 @@
 <script>
+  import { onMount, onDestroy } from 'svelte';
   import "../app.css";
   import Map from "../lib/Map.svelte";
   import DonutChart from "../lib/DonutChart.svelte";
@@ -10,22 +11,35 @@
   import data from '../data/data.json';
   import barriers_drivers from '../data/barriers_drivers.json';
 
-  let selectedProvinceObj = {
-    name: 'Select a Province',
-    population: "40.1 million",
-    area: "9.985 million",
-    capital: "Ottawa"
-  };
-  $: selectedProvince = selectedProvinceObj.name
-
+  let mapGeoJSON = { features: [] };
+  let selectedProvinceObj = {}
+  let selectedProvince = 'Select a Province'
   let selectedUrbanicity = 'Select an Urbanicity';
   let selectedInnovation = 'Select an Innovation';
   let selectedAdoption = 'Select an Adoption';
   let dataToShow, gender, ageGroup, housingTypes, householdIncome, householdComposition, adoptionStats, barriers, drivers, locationData, keyInfo
-
+  
   const provinces = ['Select a Province', ...new Set(data.map(d => d.province))]
   const urbanicity = ['Select an Urbanicity', ...new Set(data.map(d => d.urbanicity))]
   const innovation = ['Select an Innovation', ...new Set(data.map(d => d.innovation))]
+
+  let isLoading = true;
+
+  onMount(async () => {
+    try {
+      const response = await fetch('src/data/canada_provinces.geojson');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      mapGeoJSON = await response.json();
+      console.log('geosjon', mapGeoJSON)
+      isLoading = false;
+    } catch (error) {
+      console.error('Error loading GeoJSON:', error);
+      isLoading = false;
+    }
+  });
+
   function selectAdoption(stat) {
     selectedAdoption = stat.title;
   }
@@ -196,7 +210,20 @@
     drivers = getBarriersDriversStats(barriers_drivers, filters, 'Drivers')
     
     locationData = getProvinceStats(data.filter(d => d.attribute === 'Gender'), {...filters, province: 'Select'})
+
+    if (!isLoading && mapGeoJSON?.features) {
+      console.log('geosjon', mapGeoJSON)
+      selectedProvinceObj = mapGeoJSON.features.find(d => d.properties.name === selectedProvince)?.properties 
+        || {
+          name: 'Select a Province',
+          population: "40.1 million",
+          area: "9.985 million",
+          capital: "Ottawa"
+        };
+    }
   }
+
+  $: mapData = mapGeoJSON;
 
   const attributes = [
     { index: 'Household income', value: 'More than 130,000', percentage: 80 },
@@ -305,7 +332,11 @@
  <div class='w-full bg-background-dark'>
   <main class="hidden sm:block h-screen bg-background-dark px-4 sm:px-8 pb-2 my-3 sm:my-0">
     <div class="relative h-full">
-      <Map bind:selectedProvinceObj />
+      {#if mapGeoJSON?.features?.length > 0}
+        <Map bind:selectedProvince data={mapData} />
+      {:else}
+        <div class="caption flex items-center justify-center h-screen">Loading map data...</div>
+      {/if}
       <div class="absolute top-2 left-0 bg-white p-4 rounded-lg min-w-50">
          <h2 class="mb-4">{selectedProvince === 'Select a Province' ? 'Canada' : selectedProvince}</h2>
          <div class="space-y-2">
