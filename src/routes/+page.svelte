@@ -378,18 +378,31 @@
 
       <div class="absolute bottom-0 w-full">
         <p class="subtitle-s ml-2 mb-3">Adoption Potential</p>
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-0 xl:gap-4">
           {#each adoptionStats as stat}
-            <div class="m-2 p-4 rounded-lg relative cursor-pointer {selectedAdoption === stat.title ? 'bg-primary-darkgreen border-transparent' : 'bg-background-dark border border-grey-linegreen'}"
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <div class="flex flex-col justify-between m-1 xl:m-2 p-4 rounded-lg relative cursor-pointer {selectedAdoption === stat.title ? 'bg-primary-darkgreen border-transparent' : 'bg-background-dark border border-grey-linegreen'}"
                 on:click={() => selectAdoption(stat)}
              >
-              <p class="{selectedAdoption === stat.title ? 'text-white' : ''}">{stat.title}</p>
+              <p class="mb-2 {selectedAdoption === stat.title ? 'text-white' : ''}">{stat.title}</p>
               <div class="flex justify-between items-end">
                 <div class="flex flex-col justify-end">
-                  <h4 class="{selectedAdoption === stat.title ? 'text-white' : ''}">{stat.count.toLocaleString()}</h4>
+                  <div class="hidden xl:block">
+                    <h4 class="{selectedAdoption === stat.title ? 'text-white' : ''}">{stat.count.toLocaleString()}</h4>
+                  </div>
+                  <div class="block xl:hidden">
+                    <h4 class="font-secondary text-base leading-[18px] font-medium {selectedAdoption === stat.title ? 'text-white' : ''}">{stat.count.toLocaleString()}</h4>
+                  </div>
+                                   
                   <span class="font-secondary text-xs leading-[18px] font-medium italic {selectedAdoption === stat.title ? 'text-white' : 'text-primary-darkgreen'}"> homeowners</span>
                 </div>
-                <DonutChart percentage={stat.percentage} color={stat.variant} selected={selectedAdoption === stat.title ? true : false} />
+                <div class="hidden xl:block">
+                  <DonutChart size='large' percentage={stat.percentage} color={stat.variant} selected={selectedAdoption === stat.title ? true : false} />
+                </div>
+                <div class="block xl:hidden">
+                  <DonutChart size='medium' percentage={stat.percentage} color={stat.variant} selected={selectedAdoption === stat.title ? true : false} />
+                </div>
               </div>
             </div>
           {/each}
@@ -412,7 +425,7 @@
             
             <div class="w-32 flex items-center justify-end gap-2 mt-2">
               <h3>{stat.percentage}%</h3>
-              <DonutChart percentage={stat.percentage} color={stat.variant} bgcolor='#C6D0D0' showPercentages={false} showDonut={false} />
+              <DonutChart size='small' percentage={stat.percentage} color={stat.variant} bgcolor='#C6D0D0' showPercentages={false} showDonut={false} />
             </div>
           </div>
         </div>

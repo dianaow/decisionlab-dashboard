@@ -11,6 +11,7 @@
   "dependencies": {
     "@sveltejs/adapter-vercel": "^5.5.3",
     "@sveltejs/kit": "^2.17.1",
+    "@tailwindcss/container-queries": "^0.1.1",
     "d3-geo": "^3.1.1",
     "d3-selection": "^3.0.0",
     "d3-transition": "^3.0.1",

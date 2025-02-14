@@ -27,9 +27,9 @@
 </script>
 
 <Card title="Demographics">
-  <div class='space-y-4 sm:space-y-6'>
+  <div class='space-y-4 sm:space-y-6 @container'>
     <Container>
-      <div class="grid grid-cols-2 gap-8 sm:gap-12">
+      <div class="grid grid-cols-1 gap-8 sm:gap-12 @sm:grid-cols-2">
         <div class="flex flex-col">
           <p class='caption'>Gender</p>
           <div class="grid grid-cols-2 gap-2">
@@ -50,7 +50,7 @@
                 <p>Prefer not to answer</p>
               </div>
           </div>
-          <div class="flex-1 w-full mt-3">
+          <div class="flex justify-center w-1/2 @sm:w-full @md:w-3/4 mx-auto mt-3">
             <DonutChartLarge
               segments={sortedGender}
               thickness="25%"
@@ -76,7 +76,7 @@
       </div>
     </Container>
     
-    <div class="grid grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 gap-6 @sm:grid-cols-2">
       <Container>
         <p class='caption'>Household Income</p>
         <div class="space-y-3">
@@ -90,7 +90,7 @@
                 </div>
                 <p>{index}</p>
               </div>
-              <div class="w-1/4 pl-6 body-s">{percentage}%</div>
+              <div class="w-1/4 pl-3 body-s">{percentage}%</div>
             </div>
           {/each}
         </div>

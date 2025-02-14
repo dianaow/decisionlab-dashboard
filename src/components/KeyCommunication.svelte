@@ -16,7 +16,7 @@
     </Container>
 
     <Container>
-      <div class="grid md:grid-cols-2 gap-6">
+      <div class="grid sm:grid-cols-2 gap-6">
         <div>
           <p class='caption'>Sources of Trust</p>
           <BarChart

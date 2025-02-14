@@ -8,17 +8,23 @@
   export let showDonut = true;
   export let selected = false;
 
-  $: sizeClasses = size === 'large' 
-    ? 'w-20 h-20 md:w-24 md:h-24 2xl:w-28 2xl:h-28' 
-    : 'w-8 h-8 md:w-12 md:h-12 2xl:w-16 2xl:h-16';
+  $: sizeClasses = {
+    large: 'w-20 h-20 md:w-24 md:h-24 2xl:w-28 2xl:h-28',
+    medium: 'w-16 h-16 md:w-20 md:h-20 2xl:w-24 2xl:h-24',
+    small: 'w-8 h-8 md:w-12 md:h-12 2xl:w-16 2x;:h-16'
+  }[size];
 
-  $: centerClasses = size === 'large'
-    ? 'w-16 h-16 md:w-20 md:h-20 2xl:w-24 2xl:h-24'
-    : 'w-6 h-6 md:w-9 md:h-9 2xl:w-12 2xl:h-12';
+  $: centerClasses = {
+    large: 'w-16 h-16 md:w-20 md:h-20 2xl:w-24 2xl:h-24',
+    medium: 'w-12 h-12 md:w-16 md:h-16 2xl:w-20 2xl:h-20',
+    small: 'w-6 h-6 md:w-10 md:h-10 2xl:w-14 2xl:h-14'
+  }[size];
 
-  $: fontSize = size === 'large'
-    ? 'text-sm md:text-base 2xl:text-md'
-    : 'text-xs md:text-xs 2xl:text-sm';
+  $: fontSizeClasses = {
+    large: 'text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl',
+    medium: 'text-xs md:text-sm lg:text-base xl:text-lg 2xl:text-xl',
+    small: 'text-xs md:text-xs lg:text-sm xl:text-base 2xl:text-lg'
+  }[size];
 </script>
 
 <div class="relative {sizeClasses}">
@@ -30,7 +36,7 @@
     class="{showDonut? 'bg-background-dark' : ''} {selected ? 'bg-primary-darkgreen' : ''} absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 {centerClasses} rounded-full flex items-center justify-center"
   >
   {#if showPercentages}
-    <h3 class="{selected ? 'text-white' : ''}">{percentage}%</h3>
+    <h3 class="{fontSizeClasses} {selected ? 'text-white' : ''}">{percentage}%</h3>
   {/if}
   </div>
 </div>

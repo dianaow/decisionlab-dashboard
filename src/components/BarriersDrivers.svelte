@@ -51,68 +51,69 @@
   }
 </script>
 
-<Card title="Barriers & Drivers">     
-  <div class="bg-white grid md:grid-cols-2 gap-6">
-    
-    <Container>
-      <div class="space-y-4">
-        <p class="caption">Adoption Barriers</p>
-        {#each barriers as barrier}
-          <div class="bg-primary-darkgreen bg-opacity-10 rounded-lg p-4">
-            <div class="flex items-start gap-3">
-              <div class="flex-shrink-0 w-6 h-6 bg-grey-dark rounded-full flex items-center justify-center caption">
-                <div class='text-white'>{barrier.number}</div>
-              </div>
-              <div>
-                <p class="caption">{barrier.header}</p>
-                <p class="body-s">{barrier.index}</p>
-              </div>
-            </div>
-          </div>
-        {/each}
-      </div>
-    </Container>
-    <Container>
-      <div class="space-y-4">
-        <p class="caption">Adoption Drivers</p>
-        {#each drivers as driver}
-          <div class="bg-primary-green bg-opacity-10 rounded-lg p-4">
-            <div class="flex items-start gap-3">
-              <div class="flex-shrink-0 w-6 h-6 bg-primary-green rounded-full flex items-center justify-center text-sm text-teal-600">
-                <div class='text-white'>{driver.number}</div>
-              </div>
-              <div>
-                <p class="font-secondary text-xs leading-[16.08px] font-bold mb-3 text-primary-green">{driver.header}</p>
-                <p class="font-secondary text-xs leading-[18px] font-medium text-primary-green">{driver.index}</p>
+<Card title="Barriers & Drivers">  
+  <div class="@container">
+    <div class="bg-white grid grid-cols-1 @md:grid-cols-2 gap-6">
+      <Container>
+        <div class="space-y-4">
+          <p class="caption">Adoption Barriers</p>
+          {#each barriers as barrier}
+            <div class="bg-primary-darkgreen bg-opacity-10 rounded-lg p-4">
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 w-6 h-6 bg-grey-dark rounded-full flex items-center justify-center caption">
+                  <div class='text-white'>{barrier.number}</div>
+                </div>
+                <div>
+                  <p class="caption">{barrier.header}</p>
+                  <p class="body-s">{barrier.index}</p>
+                </div>
               </div>
             </div>
-          </div>
-        {/each}
-      </div>
-    </Container>
-  </div>
-
-  <!-- <Container>
-    <div class="grid md:grid-cols-2 gap-6">
-      <BarChart
-        data={barriers}
-        labelSize="text-xs"
-        spacing="space-y-3"
-      />
-      <BarChart
-        data={drivers}
-        labelSize="text-xs"
-        spacing="space-y-3"
-      />           
+          {/each}
+        </div>
+      </Container>
+      <Container>
+        <div class="space-y-4">
+          <p class="caption">Adoption Drivers</p>
+          {#each drivers as driver}
+            <div class="bg-primary-green bg-opacity-10 rounded-lg p-4">
+              <div class="flex items-start gap-3">
+                <div class="flex-shrink-0 w-6 h-6 bg-primary-green rounded-full flex items-center justify-center text-sm text-teal-600">
+                  <div class='text-white'>{driver.number}</div>
+                </div>
+                <div>
+                  <p class="font-secondary text-xs leading-[16.08px] font-bold mb-3 text-primary-green">{driver.header}</p>
+                  <p class="font-secondary text-xs leading-[18px] font-medium text-primary-green">{driver.index}</p>
+                </div>
+              </div>
+            </div>
+          {/each}
+        </div>
+      </Container>
     </div>
-  </Container> -->
-
-  <div class="mt-8">
-    <p class="body-l mb-3">Duis aute irure dolor in reprehenderit</p>
-    <p class="text-grey-light">
-      Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium 
-      doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore 
-      veritatis et quasi architecto beatae vitae dicta sunt explicabo.
-    </p>
-  </div>
+  
+    <!-- <Container>
+      <div class="grid md:grid-cols-2 gap-6">
+        <BarChart
+          data={barriers}
+          labelSize="text-xs"
+          spacing="space-y-3"
+        />
+        <BarChart
+          data={drivers}
+          labelSize="text-xs"
+          spacing="space-y-3"
+        />           
+      </div>
+    </Container> -->
+  
+    <div class="mt-8">
+      <p class="body-l mb-3">Duis aute irure dolor in reprehenderit</p>
+      <p class="text-grey-light">
+        Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium 
+        doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore 
+        veritatis et quasi architecto beatae vitae dicta sunt explicabo.
+      </p>
+    </div>
+  </div>   
 </Card>
