@@ -51,7 +51,7 @@ h3 {
 }
 
 h4 {
-  @apply font-secondary text-[26px] leading-[39px] font-medium text-primary-darkgreen;
+  @apply font-secondary text-[22px] leading-[30px] font-medium text-primary-darkgreen;
 }
 
 .subtitle-l {

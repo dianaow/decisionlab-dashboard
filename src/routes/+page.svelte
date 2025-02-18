@@ -1,6 +1,8 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
   import "../app.css";
+  import Header from '../components/Header.svelte';
+  import Footer from '../components/Footer.svelte';
   import Map from "../lib/Map.svelte";
   import DonutChart from "../lib/DonutChart.svelte";
   import Demographics from "../components/Demographics.svelte";
@@ -281,7 +283,13 @@
       percentage: 25
     }
   ];
+
+  function handleMenuToggle() {
+    // Handle menu open/close logic
+  }
 </script>
+
+<Header on:toggleMenu={handleMenuToggle} />
 
 <div class="flex flex-col md:flex-row h-auto">
 
@@ -472,6 +480,8 @@
   </main>
  </div>
 </div>
+
+<Footer />
 
 <style>
  :global(body) {

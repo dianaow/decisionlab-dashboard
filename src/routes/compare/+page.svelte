@@ -1,5 +1,7 @@
 <script>
   import "../../app.css";
+  import Header from '../../components/Header.svelte';
+  import Footer from '../../components/Footer.svelte';
   import CompareHeader from '../../components/CompareHeader.svelte';
   import DropdownPanel from '../../lib/DropdownPanel.svelte';
   import DonutChart from "../../lib/DonutChart.svelte";
@@ -261,9 +263,13 @@
   function handleShare() {
     // Handle share action
   }
+
+  function handleMenuToggle() {
+    // Handle menu open/close logic
+  }
 </script>
 <div class="flex flex-col h-auto">
-
+  <Header on:toggleMenu={handleMenuToggle} />
   <CompareHeader 
     on:back={handleBack}
     on:download={handleDownload}
@@ -397,6 +403,7 @@
     />
   </main>
  </div>
+ <Footer />
 </div>
 
 <style>
