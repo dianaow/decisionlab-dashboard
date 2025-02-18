@@ -382,9 +382,14 @@
           {#each adoptionStats as stat}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <div class="flex flex-col justify-between m-1 xl:m-2 p-4 rounded-lg relative cursor-pointer {selectedAdoption === stat.title ? 'bg-primary-darkgreen border-transparent' : 'bg-background-dark border border-grey-linegreen'}"
-                on:click={() => selectAdoption(stat)}
-             >
+            <div 
+              class="flex flex-col justify-between m-1 xl:m-2 p-4 rounded-lg relative cursor-pointer {
+                  selectedAdoption === stat.title 
+                      ? 'bg-white border-transparent text-gray-900' 
+                      : 'bg-background-dark border border-grey-linegreen text-current'
+              }"
+              on:click={() => selectAdoption(stat)}
+            >
               <p class="mb-2 {selectedAdoption === stat.title ? 'text-white' : ''}">{stat.title}</p>
               <div class="flex justify-between items-end">
                 <div class="flex flex-col justify-end">
