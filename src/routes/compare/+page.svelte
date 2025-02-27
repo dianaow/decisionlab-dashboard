@@ -10,25 +10,29 @@
   import BarriersDrivers from "../../components/BarriersDrivers.svelte";
   import CurrentHousing from "../../components/CurrentHousing.svelte";
   import KeyCommunication from "../../components/KeyCommunication.svelte";
-  import data from '../../data/data.json';
+  import data_homeowners from '../../data/data_homeowners.json';
+  import data_residents from '../../data/data_residents.json';
   import barriers_drivers from '../../data/barriers_drivers.json';
+  import attributes_homeowners from '../../data/attributes_homeowners.json';
 
   // Initial states for both panels
   let panel1Values = {
-    province: 'Select',
-    urbanicity: 'Select',
-    innovation: 'Select',
-    descriptor: 'Select',
-    adoption: 'Select'
+    province: 'Alberta',
+    urbanicity: 'Select an Urbanicity',
+    innovation: 'Select an Innovation',
+    adoption: 'Select an Adoption',
+    persona: 'Homeowners'
   };
    
   let panel2Values = {
-    province: 'Select',
-    urbanicity: 'Select',
-    innovation: 'Select',
-    descriptor: 'Select',
-    adoption: 'Select'
+    province: 'Ontario',
+    urbanicity: 'Select an Urbanicity',
+    innovation: 'Select an Innovation',
+    adoption: 'Select an Adoption',
+    persona: 'Homeowners'
   };
+
+  let data1, data2, dataAll1, dataAll2
 
   // Handle changes from each panel
   function handlePanel1Change(event) {
@@ -39,8 +43,6 @@
     panel2Values = event.detail;
   }
 
-  let data1, data2
-
   function selectAdoption1(stat) {
     panel1Values.adoption = stat.title;
   }
@@ -49,7 +51,7 @@
     panel2Values.adoption = stat.title;
   }
 
-  function calculateAdoptionStats(filters) {
+  function calculateAdoptionStats(data, filters) {
     // Step 1: Filter data based on selected dropdowns
     const filteredData = data.filter(d =>
       Object.entries(filters).every(([key, value]) =>
@@ -136,10 +138,12 @@
     const filteredData = data
       .filter(d => {
         return Object.entries(filters).every(([key, value]) => {
-          return value === 'Select' || d[key] === value
+          if(key === 'persona') return true; // Skip persona check
+          return value === 'Select' || d[key] === value;
         })
       }
     );
+
     const result = {};
 
     // Step 1: Aggregate data by key
@@ -170,6 +174,14 @@
   }
 
   function filterAllData(data, filters) {
+
+    filters = {
+      province: filters.province === 'Select a Province' ? 'Select' : filters.province,
+      urbanicity: filters.urbanicity === 'Select an Urbanicity' ? 'Select' : filters.urbanicity,
+      innovation: filters.innovation === 'Select an Innovation' ? 'Select' : filters.innovation,
+      adoption: filters.adoption === 'Select an Adoption' ? 'Select' : filters.adoption
+    };
+
     const dataToShow = filterAndAggregateData(data, filters);
     const gender = dataToShow.filter(d => d.attribute === 'Gender')
     const ageGroup = dataToShow.filter(d => d.attribute === 'Age Group')
@@ -182,30 +194,19 @@
     const drivers = getBarriersDriversStats(barriers_drivers, filters, 'Drivers')
     
     const locationData = getProvinceStats(data.filter(d => d.attribute === 'Gender'), {...filters, province: 'Select'})
+    const adoptionStats = calculateAdoptionStats(data, {...filters, adoption: 'Select'});
+    const attributes = attributes_homeowners.filter(d => d.innovation === filters.innovation && d.adoption === filters.adoption)
 
-    const adoptionStats = calculateAdoptionStats({...filters, adoption: 'Select'});
-
-    return {gender, ageGroup, housingTypes, householdIncome, householdComposition, keyInfo, barriers, drivers, locationData, adoptionStats}
+    return {gender, ageGroup, housingTypes, householdIncome, householdComposition, keyInfo, barriers, drivers, locationData, adoptionStats, attributes}
   }
 
   $: {
-    data1 = filterAllData(data, panel1Values)
-    data2 = filterAllData(data, panel2Values)
+    dataAll1 = panel1Values.persona === 'Homeowners' ? data_homeowners : data_residents
+    dataAll2 = panel2Values.persona === 'Homeowners' ? data_homeowners : data_residents
+    data1 = filterAllData(dataAll1, panel1Values)
+    data2 = filterAllData(dataAll2, panel2Values)
   }
 
-  const attributes = [
-    { index: 'Household income', value: 'More than 130,000', percentage: 80 },
-    { index: 'Household income', value: '100,001-130,000', percentage: 75 },
-    { index: 'Age', value: '26-30', percentage: 60 },
-    { index: 'Age', value: '31-40', percentage: 40 },
-    { index: 'Gender', value: 'Men', percentage: 33 },
-    { index: 'Household income', value: '70,001-100,000', percentage: 25 },
-    { index: 'What is the relationship to you of the people living at your residence?', value: 'I live alone', percentage: 25 },
-    { index: 'What is the relationship to you of the people living at your residence?', value: 'your spouse or common-law partner', percentage: 20 },
-    { index: 'Gender', value: 'Women', percentage: 15 },
-    { index: 'Household income', value: '40,001-70,000', percentage: 15 }
-  ];
-  
   const trustSources = [
     {
       index: "Information Verifiable through Other Sources",
@@ -279,7 +280,7 @@
     <div>
       <DropdownPanel 
         id="panel1"
-        {data}
+        data={dataAll1}
         selectedValues={panel1Values}
         on:change={handlePanel1Change}
       />
@@ -287,7 +288,7 @@
     <div>
       <DropdownPanel 
         id="panel2"
-        {data}
+        data={dataAll2}
         selectedValues={panel2Values}
         on:change={handlePanel2Change}
       />
@@ -359,8 +360,12 @@
    
   <main class="bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
     <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6 mt-5">
-      <Attributes data={attributes} />
-      <Attributes data={attributes} />
+      {#if panel1Values.persona == 'Homeowners'}
+        <Attributes data={data1.attributes} />
+      {/if}
+      {#if panel2Values.persona == 'Homeowners'}
+        <Attributes data={data2.attributes} />
+      {/if}
     </div>
   </main>
 

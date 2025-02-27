@@ -10,8 +10,10 @@
   import BarriersDrivers from "../components/BarriersDrivers.svelte";
   import CurrentHousing from "../components/CurrentHousing.svelte";
   import KeyCommunication from "../components/KeyCommunication.svelte";
-  import data from '../data/data.json';
+  import data_homeowners from '../data/data_homeowners.json';
+  import data_residents from '../data/data_residents.json';
   import barriers_drivers from '../data/barriers_drivers.json';
+  import attributes_homeowners from '../data/attributes_homeowners.json';
 
   let mapGeoJSON = { features: [] };
   let selectedProvinceObj = {}
@@ -19,12 +21,9 @@
   let selectedUrbanicity = 'Select an Urbanicity';
   let selectedInnovation = 'Select an Innovation';
   let selectedAdoption = 'Select an Adoption';
-  let dataToShow, gender, ageGroup, housingTypes, householdIncome, householdComposition, adoptionStats, barriers, drivers, locationData, keyInfo
+  let selectedPersona = 'Homeowners';
+  let dataToShow, gender, ageGroup, housingTypes, householdIncome, householdComposition, adoptionStats, barriers, drivers, locationData, keyInfo, provinces, urbanicity, innovation, attributes
   
-  const provinces = ['Select a Province', ...new Set(data.map(d => d.province))]
-  const urbanicity = ['Select an Urbanicity', ...new Set(data.map(d => d.urbanicity))]
-  const innovation = ['Select an Innovation', ...new Set(data.map(d => d.innovation))]
-
   let isLoading = true;
 
   onMount(async () => {
@@ -45,7 +44,7 @@
     selectedAdoption = stat.title;
   }
   
-  function calculateAdoptionStats(filters) {
+  function calculateAdoptionStats(data, filters) {
     // Step 1: Filter data based on selected dropdowns
     const filteredData = data.filter(d =>
       Object.entries(filters).every(([key, value]) =>
@@ -83,17 +82,6 @@
       percentage: totalCount > 0 ? ((count / totalCount) * 100).toFixed(2) : 0,
       variant: colorMap[title]
     }));
-  }
-
-  $: {
-    const filters = {
-      province: selectedProvince === 'Select a Province' ? 'Select' : selectedProvince,
-      urbanicity: selectedUrbanicity === 'Select an Urbanicity' ? 'Select' : selectedUrbanicity,
-      innovation: selectedInnovation === 'Select an Innovation' ? 'Select' : selectedInnovation,
-      adoption: 'Select' // Ignore adoption filter since we are calculating its stats
-    };
-
-    adoptionStats = calculateAdoptionStats(filters);
   }
 
   function getProvinceStats(data, filters) {
@@ -191,6 +179,12 @@
   }
 
   $: {
+    const data = selectedPersona === 'Homeowners' ? data_homeowners : data_residents
+
+    provinces = ['Select a Province', ...new Set(data.map(d => d.province))]
+    urbanicity = ['Select an Urbanicity', ...new Set(data.map(d => d.urbanicity))]
+    innovation = ['Select an Innovation', ...new Set(data.map(d => d.innovation))]
+
     const filters = {
       province: selectedProvince === 'Select a Province' ? 'Select' : selectedProvince,
       urbanicity: selectedUrbanicity === 'Select an Urbanicity' ? 'Select' : selectedUrbanicity,
@@ -221,22 +215,20 @@
           capital: "Ottawa"
         };
     }
+
+    const filters1 = {
+      province: selectedProvince === 'Select a Province' ? 'Select' : selectedProvince,
+      urbanicity: selectedUrbanicity === 'Select an Urbanicity' ? 'Select' : selectedUrbanicity,
+      innovation: selectedInnovation === 'Select an Innovation' ? 'Select' : selectedInnovation,
+      adoption: 'Select' // Ignore adoption filter since we are calculating its stats
+    };
+
+    adoptionStats = calculateAdoptionStats(data, filters1);
+    attributes = attributes_homeowners.filter(d => d.innovation === filters.innovation && d.adoption === filters.adoption)
+    console.log(attributes, filters)
   }
 
   $: mapData = mapGeoJSON;
-
-  const attributes = [
-    { index: 'Household income', value: 'More than 130,000', percentage: 80 },
-    { index: 'Household income', value: '100,001-130,000', percentage: 75 },
-    { index: 'Age', value: '26-30', percentage: 60 },
-    { index: 'Age', value: '31-40', percentage: 40 },
-    { index: 'Gender', value: 'Men', percentage: 33 },
-    { index: 'Household income', value: '70,001-100,000', percentage: 25 },
-    { index: 'What is the relationship to you of the people living at your residence?', value: 'I live alone', percentage: 25 },
-    { index: 'What is the relationship to you of the people living at your residence?', value: 'your spouse or common-law partner', percentage: 20 },
-    { index: 'Gender', value: 'Women', percentage: 15 },
-    { index: 'Household income', value: '40,001-70,000', percentage: 15 }
-  ];
   
   const trustSources = [
     {
@@ -287,6 +279,11 @@
   function handleMenuToggle() {
     // Handle menu open/close logic
   }
+
+  // Compute the grid class based on the persona
+  $: gridColClass = selectedPersona === 'Homeowners' 
+  ? 'grid-cols-2 lg:grid-cols-5 gap-0 xl:gap-4' 
+  : 'grid-cols-2 lg:grid-cols-4 gap-0 xl:gap-4';
 </script>
 
 <Header on:toggleMenu={handleMenuToggle} />
@@ -328,10 +325,12 @@
 
       <div class='flex md:block'>
         <label>Who are you looking to learn about?</label>
-        <select>
+        <select bind:value={selectedPersona} class="flex-1">
           <option>Homeowners</option>
+          <option>Residents</option>
         </select>
       </div>
+      
     </div>
   </aside>
 
@@ -386,14 +385,14 @@
 
       <div class="absolute bottom-0 w-full">
         <p class="subtitle-s ml-2 mb-3">Adoption Potential</p>
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-0 xl:gap-4">
+        <div class={`grid ${gridColClass}`}>
           {#each adoptionStats as stat}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div 
               class="flex flex-col justify-between m-1 xl:m-2 p-4 rounded-lg relative cursor-pointer {
                   selectedAdoption === stat.title 
-                      ? 'bg-white border-transparent text-gray-900' 
+                      ? 'bg-primary-darkgreen border-transparent text-white' 
                       : 'bg-background-dark border border-grey-linegreen text-current'
               }"
               on:click={() => selectAdoption(stat)}
@@ -454,7 +453,9 @@
         householdIncome={householdIncome}
         locationData={locationData}
       />
-      <Attributes data={attributes} />
+      {#if selectedPersona == 'Homeowners'}
+        <Attributes data={attributes} />
+      {/if}
     </div>
   </main>
    

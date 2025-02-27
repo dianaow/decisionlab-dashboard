@@ -2,16 +2,19 @@
   export let id = 'dropdownPanel';
   export let data = [];
   export let selectedValues = {
-    province: 'Ontario',
+    province: 'Alberta',
     urbanicity: 'Select an Urbanicity',
-    innovation: 'ADU',
-    audience: 'Homeowners'
+    innovation: 'Select an Innovation',
+    adoption: 'Select an Adoption',
+    persona: 'Homeowners'
   };
 
   // Create derived lists for dropdowns
   $: provinces = ['Select a Province', ...new Set(data.map(d => d.province))];
   $: urbanicity = ['Select an Urbanicity', ...new Set(data.map(d => d.urbanicity))];
   $: innovation = ['Select an Innovation', ...new Set(data.map(d => d.innovation))];
+  
+  let personas = ['Homeowners', 'Residents']
 
   // Handle value changes
   function handleChange(field, value) {
@@ -87,11 +90,13 @@
       <div>
         <label class="block mb-2">Who are you looking to learn about?</label>
         <select
-          value={selectedValues.audience}
-          on:change={e => handleChange('audience', e.target.value)}
+          value={selectedValues.persona}
+          on:change={e => handleChange('persona', e.target.value)}
           class="w-full bg-transparent border border-white rounded px-3 py-2 text-white"
         >
-          <option>Homeowners</option>
+          {#each personas as i}
+            <option>{i}</option>
+          {/each}
         </select>
       </div>
     </div>

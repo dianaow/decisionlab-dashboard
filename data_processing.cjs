@@ -1,11 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 
-const fileInputName = path.join(__dirname, 'src/data/data.tsv'); 
-const fileOutputName = path.join(__dirname, 'src/data/data.json');
+const fileInputName = path.join(__dirname, 'src/data/data_homeowners.tsv'); 
+const fileOutputName = path.join(__dirname, 'src/data/data_homeowners.json');
 
 const file1InputName = path.join(__dirname, 'src/data/barriers_drivers.tsv'); 
 const file1OutputName = path.join(__dirname, 'src/data/barriers_drivers.json');
+
+const file2InputName = path.join(__dirname, 'src/data/attributes_homeowners.tsv'); 
+const file2OutputName = path.join(__dirname, 'src/data/attributes_homeowners.json');
 
 fs.readFile(file1InputName, 'utf-8', (err, data) => {
     if (err) {
@@ -242,3 +245,80 @@ function calculateAggregations(flatData) {
         (a.urbanicity || '').localeCompare(b.urbanicity || '')
     );
 }
+
+function tsvToJson(tsvData, options = {}) {
+    // Set default options
+    const config = {
+      header: true,
+      trimValues: true,
+      ...options
+    };
+    
+    // Split the TSV data into rows (handle both \r\n and \n line endings)
+    const rows = tsvData.trim().split(/\r?\n/);
+    
+    // If there's no data, return an empty array
+    if (rows.length === 0) {
+      return [];
+    }
+    
+    // Parse the header row if present
+    const headerRow = config.header ? 
+      rows.shift().split('\t').map(header => config.trimValues ? header.trim() : header) : 
+      null;
+    
+    // If there's no header, generate numeric column names
+    const columns = headerRow || 
+      Array.from({ length: rows[0].split('\t').length }, (_, i) => `column${i}`);
+    
+    // Process each row into a JSON object
+    return rows.map(row => {
+      const values = row.split('\t');
+      const jsonRow = {};
+      
+      // Map each value to its corresponding column
+      columns.forEach((column, index) => {
+        // Get the value and trim if configured to do so
+        let value = values[index];
+        if (value !== undefined && config.trimValues) {
+          value = value.trim();
+        }
+        
+        // Try to auto-detect and convert data types
+        if (value === undefined) {
+          value = null;
+        } else if (value === 'true' || value === 'TRUE') {
+          value = true;
+        } else if (value === 'false' || value === 'FALSE') {
+          value = false;
+        } else if (value === '') {
+          value = null;
+        } else if (!isNaN(value) && value.trim() !== '') {
+          value = Number(value);
+        }
+        
+        jsonRow[column] = value;
+      });
+      
+      return jsonRow;
+    });
+}
+
+fs.readFile(file2InputName, 'utf8', (err, data) => {
+    if (err) {
+        console.error('Error reading file:', err);
+        return;
+    }
+
+    const jsonData = tsvToJson(data);
+
+    fs.writeFile(file2OutputName, JSON.stringify(jsonData, null, 2), 'utf8', (err) => {
+        if (err) {
+        console.error('Error writing file:', err);
+        return;
+        }
+        console.log('CSV successfully converted to JSON');
+    });
+});
+
+ 
