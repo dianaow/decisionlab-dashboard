@@ -11,7 +11,7 @@
       {#each data as attr, index}
       <div class="w-full">
         <p class="mb-1">
-          {attr.index}: <span class="body-s italic">{attr.percentage}</span>
+          {attr.index}: <span class="body-s italic">{attr.percentage.toFixed(2)}</span>
         </p>
         <div class="bg-grey-linegreen bg-opacity-20 rounded-full h-4 ">
           <div class="h-full bg-primary-teal rounded-full" style="width: {attr.percentage}%"></div>

@@ -21,7 +21,7 @@
   let isInternalUpdate = false; // Flag for internal updates
 
   const projection = geoMercator()
-    .center([-96, 60.5]);
+    .center([-96, 55.5]);
     
   const path = geoPath().projection(projection);
 
@@ -111,7 +111,7 @@
         .on('click', (event, d) => {
           isInternalUpdate = true;
           selectedProvince = d.properties.name;
-          zoomToProvince(d);
+          //zoomToProvince(d);
         })
         .on('mouseover', function(event, d) {
           const matchingPolygons = g.selectAll('path')
@@ -185,7 +185,7 @@
         .data();
 
       if (selectedFeatures.length > 0) {
-        zoomToProvince(selectedFeatures);
+        //zoomToProvince(selectedFeatures);
       }
     }
     

@@ -3,6 +3,7 @@
   import "../app.css";
   import Header from '../components/Header.svelte';
   import Footer from '../components/Footer.svelte';
+  import CustomDropdown from '../lib/CustomDropdown.svelte';
   import Map from "../lib/Map.svelte";
   import DonutChart from "../lib/DonutChart.svelte";
   import Demographics from "../components/Demographics.svelte";
@@ -12,19 +13,19 @@
   import KeyCommunication from "../components/KeyCommunication.svelte";
   import data_homeowners from '../data/data_homeowners.json';
   import data_residents from '../data/data_residents.json';
-  import barriers_drivers from '../data/barriers_drivers.json';
   import attributes_homeowners from '../data/attributes_homeowners.json';
-
+  
   let mapGeoJSON = { features: [] };
   let selectedProvinceObj = {}
   let selectedProvince = 'Select a Province'
   let selectedUrbanicity = 'Select an Urbanicity';
-  let selectedInnovation = 'Select an Innovation';
+  let selectedInnovation = 'ADU';
   let selectedAdoption = 'Select an Adoption';
   let selectedPersona = 'Homeowners';
   let dataToShow, gender, ageGroup, housingTypes, householdIncome, householdComposition, adoptionStats, barriers, drivers, locationData, keyInfo, provinces, urbanicity, innovation, attributes
   
   let isLoading = true;
+  let personas = ['Homeowners', 'Residents'];
 
   onMount(async () => {
     try {
@@ -201,8 +202,8 @@
     householdComposition = dataToShow.filter(d => d.attribute === 'Household Composition')
     keyInfo = dataToShow.filter(d => d.attribute === 'Key Pieces of Information')
 
-    barriers = getBarriersDriversStats(barriers_drivers, filters, 'Barriers')
-    drivers = getBarriersDriversStats(barriers_drivers, filters, 'Drivers')
+    barriers = getBarriersDriversStats(data, filters, 'Barriers')
+    drivers = getBarriersDriversStats(data, filters, 'Drivers')
     
     locationData = getProvinceStats(data.filter(d => d.attribute === 'Gender'), {...filters, province: 'Select'})
 
@@ -225,7 +226,6 @@
 
     adoptionStats = calculateAdoptionStats(data, filters1);
     attributes = attributes_homeowners.filter(d => d.innovation === filters.innovation && d.adoption === filters.adoption)
-    console.log(attributes, filters)
   }
 
   $: mapData = mapGeoJSON;
@@ -289,52 +289,51 @@
 <Header on:toggleMenu={handleMenuToggle} />
 
 <div class="flex flex-col md:flex-row h-auto">
+  <aside id='dropdownPanel' class="relative md:sticky top-24 md:h-[calc(100vh-5rem)] flex-shrink-0 flex w-full md:w-64 bg-grey-darkgreen p-4 md:p-6 text-white overflow-y-auto">  
+    <div class="space-y-2">
+      <h3 class='text-white mb-8'>Filters</h3>
+        <label class="block">Location</label>
+        <div class="space-y-8">
+          <div class="w-full flex md:block space-x-4 md:space-x-0">
+            <CustomDropdown 
+              options={provinces}
+              value={selectedProvince}
+              placeholder="Select a Province"
+              onChange={(value) => selectedProvince = value}
+            />
+            <CustomDropdown 
+              options={urbanicity}
+              value={selectedUrbanicity}
+              placeholder="Select an Urbanicity"
+              onChange={(value) => selectedUrbanicity = value}
+            />
+          </div>
 
-  <aside id='dropdownPanel' class="flex w-full md:w-64 bg-grey-darkgreen p-6 text-white">    
-    <div class="space-y-6">
-      <h3 class='text-white mb-3'>Filters</h3>
-      <div class='flex md:block space-x-2 md:space-x-0'>
-        <label>Location</label>
-        <select bind:value={selectedProvince} class="flex-1">
-          {#each provinces as province}
-            <option>{province}</option>
-          {/each}
-        </select>
-        <select bind:value={selectedUrbanicity} class="flex-1">
-          {#each urbanicity as area}
-            <option>{area}</option>
-          {/each}
-        </select>
-      </div>
+          <div class="w-full">
+            <CustomDropdown 
+              label="Which innovation are you focused on?"
+              options={innovation}
+              value={selectedInnovation}
+              placeholder="Select an Innovation"
+              onChange={(value) => selectedInnovation = value}
+            />
+          </div>
 
-      <div class='flex md:block'>
-        <label>How would you describe yourself?</label>
-        <select>
-          <option>Select a descriptor</option>
-        </select>
-      </div>
-
-      <div class='flex md:block'>
-        <label>Which innovation are you focused on?</label>
-        <select bind:value={selectedInnovation} class="flex-1">
-          {#each innovation as i}
-            <option>{i}</option>
-          {/each}
-        </select>
-      </div>
-
-      <div class='flex md:block'>
-        <label>Who are you looking to learn about?</label>
-        <select bind:value={selectedPersona} class="flex-1">
-          <option>Homeowners</option>
-          <option>Residents</option>
-        </select>
-      </div>
+          <div class="w-full">
+            <CustomDropdown 
+              label="Who are you looking to learn about?"
+              options={personas}
+              value={selectedPersona}
+              placeholder="Select a Persona"
+              onChange={(value) => selectedPersona = value}
+            />
+          </div>
+        </div>
       
     </div>
   </aside>
-
- <div class='w-full bg-background-dark'>
+  
+  <div class='w-full bg-background-dark pt-28'>
   <main class="hidden sm:block h-screen bg-background-dark px-4 sm:px-8 pb-2 my-3 sm:my-0">
     <div class="relative h-full">
       {#if mapGeoJSON?.features?.length > 0}
@@ -343,44 +342,44 @@
         <div class="caption flex items-center justify-center h-screen">Loading map data...</div>
       {/if}
       <div class="absolute top-2 left-0 bg-white p-4 rounded-lg min-w-50">
-         <h2 class="mb-4">{selectedProvince === 'Select a Province' ? 'Canada' : selectedProvince}</h2>
-         <div class="space-y-2">
-           <div class="flex gap-4">
-             <span class="caption1">Population</span>
-             <span class='body-s'>{selectedProvinceObj.population || "-"}</span>
-           </div>
-           <div class="flex gap-4">
-             <span class="caption1">Area</span>
-             <span class='body-s'>{selectedProvinceObj.area || "-" + " km²"}</span>
-           </div>
-           <div class="flex gap-4">
-             <span class="caption1">Capital</span>
-             <span class='body-s'>{selectedProvinceObj.capital || "-"}</span>
-           </div>
-         </div>
+          <h2 class="mb-4">{selectedProvince === 'Select a Province' ? 'Canada' : selectedProvince}</h2>
+          <div class="space-y-2">
+            <div class="flex gap-4">
+              <span class="caption1">Population</span>
+              <span class='body-s'>{selectedProvinceObj.population || "-"}</span>
+            </div>
+            <div class="flex gap-4">
+              <span class="caption1">Area</span>
+              <span class='body-s'>{selectedProvinceObj.area || "-" + " km²"}</span>
+            </div>
+            <div class="flex gap-4">
+              <span class="caption1">Capital</span>
+              <span class='body-s'>{selectedProvinceObj.capital || "-"}</span>
+            </div>
+          </div>
       </div>
- 
+  
       <div class="absolute top-2 right-0">
-           <div class="flex flex-col gap-4">
-             <button class="px-2 py-2 border border-teal-500 text-teal-500 rounded-sm flex items-center gap-2">
-               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-               </svg>
-               DOWNLOAD
-             </button>
-             <button class="px-2 py-2 border border-teal-500 text-teal-500 rounded-sm flex items-center gap-2">
-               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
-               </svg>
-               SHARE
-             </button>
-             <button class="px-2 py-2 border border-teal-500 text-teal-500 rounded-sm flex items-center gap-2">
-               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-               </svg>
-               COMPARE
-             </button>
-           </div>
+            <div class="flex flex-col gap-4">
+              <button class="px-2 py-2 border border-teal-500 text-teal-500 rounded-sm flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                DOWNLOAD
+              </button>
+              <button class="px-2 py-2 border border-teal-500 text-teal-500 rounded-sm flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                </svg>
+                SHARE
+              </button>
+              <button class="px-2 py-2 border border-teal-500 text-teal-500 rounded-sm flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                COMPARE
+              </button>
+            </div>
       </div>
 
       <div class="absolute bottom-0 w-full">
@@ -406,7 +405,7 @@
                   <div class="block xl:hidden">
                     <h4 class="font-secondary text-base leading-[18px] font-medium {selectedAdoption === stat.title ? 'text-white' : ''}">{stat.count.toLocaleString()}</h4>
                   </div>
-                                   
+                                    
                   <span class="font-secondary text-xs leading-[18px] font-medium italic {selectedAdoption === stat.title ? 'text-white' : 'text-primary-darkgreen'}"> homeowners</span>
                 </div>
                 <div class="hidden xl:block">
@@ -422,12 +421,19 @@
       </div>
     </div>
   </main>
- 
+  
   <main class="block sm:hidden bg-background-dark px-4 sm:px-8 py-2 my-3 sm:my-0">
     <p class="subtitle-s">Adoption Potential <span class="text-primary-darkgreen italic">for ADUs</span></p>
     <div class="space-y-2 mt-3">
       {#each adoptionStats as stat}
-        <div class="flex items-center justify-between border-t border-grey-linegreen cursor-pointer" on:click={() => selectAdoption(stat)}>
+        <div 
+          class="flex items-center justify-between border-t border-grey-linegreen cursor-pointer p-2 rounded-md transition-colors duration-200 {
+            selectedAdoption === stat.title 
+              ? 'bg-white shadow-sm text-primary-darkgreen' 
+              : 'hover:bg-gray-50'
+          }" 
+          on:click={() => selectAdoption(stat)}
+        >
           <div class='caption mt-5'>{stat.title}</div>          
           <div class="flex items-center gap-4">
             <span>
@@ -437,7 +443,14 @@
             
             <div class="w-32 flex items-center justify-end gap-2 mt-2">
               <h3>{stat.percentage}%</h3>
-              <DonutChart size='small' percentage={stat.percentage} color={stat.variant} bgcolor='#C6D0D0' showPercentages={false} showDonut={false} />
+              <DonutChart 
+                size='small' 
+                percentage={stat.percentage} 
+                color={stat.variant} 
+                bgcolor={selectedAdoption === stat.title ? '#FFFFFF' : '#C6D0D0'} 
+                showPercentages={false} 
+                showDonut={false} 
+              />
             </div>
           </div>
         </div>
@@ -458,7 +471,7 @@
       {/if}
     </div>
   </main>
-   
+    
   <main class="min-h-screen bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
     <div class="w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       <BarriersDrivers 
@@ -479,7 +492,7 @@
       distrustSources={distrustSources}
     />
   </main>
- </div>
+  </div>
 </div>
 
 <Footer />

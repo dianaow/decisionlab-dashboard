@@ -4,30 +4,11 @@ const path = require('path');
 const fileInputName = path.join(__dirname, 'src/data/data_homeowners.tsv'); 
 const fileOutputName = path.join(__dirname, 'src/data/data_homeowners.json');
 
-const file1InputName = path.join(__dirname, 'src/data/barriers_drivers.tsv'); 
-const file1OutputName = path.join(__dirname, 'src/data/barriers_drivers.json');
+const file1InputName = path.join(__dirname, 'src/data/data_residents.tsv'); 
+const file1OutputName = path.join(__dirname, 'src/data/data_residents.json');
 
 const file2InputName = path.join(__dirname, 'src/data/attributes_homeowners.tsv'); 
 const file2OutputName = path.join(__dirname, 'src/data/attributes_homeowners.json');
-
-fs.readFile(file1InputName, 'utf-8', (err, data) => {
-    if (err) {
-        console.error('Error reading the file:', err);
-        return;
-    }
-
-    const flatData = flattenData(data)
-    
-    const jsonString = JSON.stringify(flatData, null, 2);
-
-    fs.writeFile(file1OutputName, jsonString, 'utf-8', err => {
-        if (err) {
-            console.error('Error writing the JSON file:', err);
-        } else {
-            console.log('JSON file created successfully:', file1OutputName);
-        }
-    });
-});
 
 fs.readFile(fileInputName, 'utf-8', (err, data) => {
     if (err) {
@@ -49,6 +30,28 @@ fs.readFile(fileInputName, 'utf-8', (err, data) => {
         }
     });
 });
+
+fs.readFile(file1InputName, 'utf-8', (err, data) => {
+    if (err) {
+        console.error('Error reading the file:', err);
+        return;
+    }
+
+    const flatData = flattenData(data)
+    
+    //const aggregatedResults = calculateAggregations(flatData);
+
+    const jsonString = JSON.stringify(flatData, null, 2);
+
+    fs.writeFile(file1OutputName, jsonString, 'utf-8', err => {
+        if (err) {
+            console.error('Error writing the JSON file:', err);
+        } else {
+            console.log('JSON file created successfully:', fileOutputName);
+        }
+    });
+});
+
 
 function flattenData(dataString) {
     // Split the data into lines

@@ -56,7 +56,7 @@
         {#each navigation as item}
           <a 
             href={item.href}
-            class="font-secondary text-grey-light hover:text-gray-700 text-sm font-medium"
+            class="font-secondary text-grey-light hover:text-gray-700 text-xs md:text-sm font-medium"
           >
             {item.name}
           </a>

@@ -15,7 +15,7 @@
   }
 </script>
 
-<header class="bg-grey-darkgreen px-6 py-4 flex items-center justify-between">
+<header class="sticky top-24 z-50 bg-grey-darkgreen px-6 py-4 flex items-center justify-between">
   <div class="flex items-center space-x-3">
     <button 
       on:click={handleBack}

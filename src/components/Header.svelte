@@ -8,7 +8,7 @@
   }
 </script>
 
-<header class="w-full bg-white shadow-sm">
+<header class="fixed top-0 z-50 w-full bg-white">
   <div class="mx-6 px-4 py-3 flex justify-between items-center">
     <div class="flex items-center space-x-3">
       <!-- Logo -->

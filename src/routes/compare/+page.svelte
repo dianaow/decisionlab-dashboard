@@ -3,7 +3,7 @@
   import Header from '../../components/Header.svelte';
   import Footer from '../../components/Footer.svelte';
   import CompareHeader from '../../components/CompareHeader.svelte';
-  import DropdownPanel from '../../lib/DropdownPanel.svelte';
+  import FilterPanel from '../../lib/FilterPanel.svelte';
   import DonutChart from "../../lib/DonutChart.svelte";
   import Demographics from "../../components/Demographics.svelte";
   import Attributes from "../../components/Attributes.svelte";
@@ -12,14 +12,13 @@
   import KeyCommunication from "../../components/KeyCommunication.svelte";
   import data_homeowners from '../../data/data_homeowners.json';
   import data_residents from '../../data/data_residents.json';
-  import barriers_drivers from '../../data/barriers_drivers.json';
   import attributes_homeowners from '../../data/attributes_homeowners.json';
 
   // Initial states for both panels
   let panel1Values = {
     province: 'Alberta',
     urbanicity: 'Select an Urbanicity',
-    innovation: 'Select an Innovation',
+    innovation: 'ADU',
     adoption: 'Select an Adoption',
     persona: 'Homeowners'
   };
@@ -27,7 +26,7 @@
   let panel2Values = {
     province: 'Ontario',
     urbanicity: 'Select an Urbanicity',
-    innovation: 'Select an Innovation',
+    innovation: 'ADU',
     adoption: 'Select an Adoption',
     persona: 'Homeowners'
   };
@@ -174,7 +173,6 @@
   }
 
   function filterAllData(data, filters) {
-
     filters = {
       province: filters.province === 'Select a Province' ? 'Select' : filters.province,
       urbanicity: filters.urbanicity === 'Select an Urbanicity' ? 'Select' : filters.urbanicity,
@@ -190,8 +188,8 @@
     const householdComposition = dataToShow.filter(d => d.attribute === 'Household Composition')
     const keyInfo = dataToShow.filter(d => d.attribute === 'Key Pieces of Information')
 
-    const barriers = getBarriersDriversStats(barriers_drivers, filters, 'Barriers')
-    const drivers = getBarriersDriversStats(barriers_drivers, filters, 'Drivers')
+    const barriers = getBarriersDriversStats(data, filters, 'Barriers')
+    const drivers = getBarriersDriversStats(data, filters, 'Drivers')
     
     const locationData = getProvinceStats(data.filter(d => d.attribute === 'Gender'), {...filters, province: 'Select'})
     const adoptionStats = calculateAdoptionStats(data, {...filters, adoption: 'Select'});
@@ -205,6 +203,7 @@
     dataAll2 = panel2Values.persona === 'Homeowners' ? data_homeowners : data_residents
     data1 = filterAllData(dataAll1, panel1Values)
     data2 = filterAllData(dataAll2, panel2Values)
+    console.log(panel1Values, data1)
   }
 
   const trustSources = [
@@ -276,9 +275,9 @@
     on:download={handleDownload}
     on:share={handleShare}
   />
-  <aside id='dropdownPanel' class="grid grid-cols-2 gap-6 w-full bg-grey-darkgreen p-6 text-white">    
+  <aside id='dropdownPanel' class="mt-6 grid grid-cols-2 gap-6 w-full bg-grey-darkgreen px-6 text-white">    
     <div>
-      <DropdownPanel 
+      <FilterPanel 
         id="panel1"
         data={dataAll1}
         selectedValues={panel1Values}
@@ -286,7 +285,7 @@
       />
     </div>
     <div>
-      <DropdownPanel 
+      <FilterPanel 
         id="panel2"
         data={dataAll2}
         selectedValues={panel2Values}
@@ -296,12 +295,19 @@
   </aside>
 
  <div class='w-full bg-background-dark'> 
-  <main class="grid grid-cols-2 gap-6 bg-background-dark px-4 sm:px-8 py-2 my-3 sm:my-0">
+  <main class="grid grid-cols-2 gap-6 bg-background-dark px-4 sm:px-8 py-3 my-3 sm:my-0">
     <div>
       <p class="subtitle-s">Adoption Potential <span class="text-primary-darkgreen italic">for ADUs</span></p>
       <div class="space-y-2 mt-3">
         {#each data1.adoptionStats as stat}
-          <div class="flex items-center justify-between border-t border-grey-linegreen cursor-pointer" on:click={() => selectAdoption1(stat)}>
+          <div 
+            class="flex items-center justify-between border-t border-grey-linegreen cursor-pointer p-2 rounded-md transition-colors duration-200 {
+              panel1Values.adoption === stat.title 
+                ? 'bg-white shadow-sm text-primary-darkgreen' 
+                : 'hover:bg-gray-50'
+            }" 
+            on:click={() => selectAdoption1(stat)}
+          >
             <div class='caption mt-5'>{stat.title}</div>          
             <div class="flex items-center gap-4">
               <span>
@@ -311,18 +317,33 @@
               
               <div class="w-32 flex items-center justify-end gap-2 mt-2">
                 <h3>{stat.percentage}%</h3>
-                <DonutChart size='small' percentage={stat.percentage} color={stat.variant} bgcolor='#C6D0D0' showPercentages={false} showDonut={false} />
+                <DonutChart 
+                  size='small' 
+                  percentage={stat.percentage} 
+                  color={stat.variant} 
+                  bgcolor={'#C6D0D0'} 
+                  showPercentages={false} 
+                  showDonut={false} 
+                />
               </div>
             </div>
           </div>
         {/each}
       </div>
     </div>
+    
     <div>
       <p class="subtitle-s">Adoption Potential <span class="text-primary-darkgreen italic">for ADUs</span></p>
       <div class="space-y-2 mt-3">
         {#each data2.adoptionStats as stat}
-          <div class="flex items-center justify-between border-t border-grey-linegreen cursor-pointer" on:click={() => selectAdoption2(stat)}>
+          <div 
+            class="flex items-center justify-between border-t border-grey-linegreen cursor-pointer p-2 rounded-md transition-colors duration-200 {
+              panel2Values.adoption === stat.title 
+                ? 'bg-white shadow-sm text-primary-darkgreen' 
+                : 'hover:bg-gray-50'
+            }" 
+            on:click={() => selectAdoption2(stat)}
+          >
             <div class='caption mt-5'>{stat.title}</div>          
             <div class="flex items-center gap-4">
               <span>
@@ -332,7 +353,14 @@
               
               <div class="w-32 flex items-center justify-end gap-2 mt-2">
                 <h3>{stat.percentage}%</h3>
-                <DonutChart size='small' percentage={stat.percentage} color={stat.variant} bgcolor='#C6D0D0' showPercentages={false} showDonut={false} />
+                <DonutChart 
+                  size='small' 
+                  percentage={stat.percentage} 
+                  color={stat.variant} 
+                  bgcolor={'#C6D0D0'} 
+                  showPercentages={false} 
+                  showDonut={false} 
+                />
               </div>
             </div>
           </div>
@@ -360,10 +388,10 @@
    
   <main class="bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
     <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6 mt-5">
-      {#if panel1Values.persona == 'Homeowners'}
+      {#if panel1Values.persona == 'Homeowners' && data1.attributes.length > 0}
         <Attributes data={data1.attributes} />
       {/if}
-      {#if panel2Values.persona == 'Homeowners'}
+      {#if panel2Values.persona == 'Homeowners' && data2.attributes.length > 0}
         <Attributes data={data2.attributes} />
       {/if}
     </div>
