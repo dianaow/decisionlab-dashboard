@@ -298,7 +298,7 @@
   <main class="grid grid-cols-2 gap-6 bg-background-dark px-4 sm:px-8 py-3 my-3 sm:my-0">
     <div>
       <p class="subtitle-s">Adoption Potential <span class="text-primary-darkgreen italic">for ADUs</span></p>
-      <div class="space-y-2 mt-3">
+      <div class="mt-3">
         {#each data1.adoptionStats as stat}
           <div 
             class="flex items-center justify-between border-t border-grey-linegreen cursor-pointer p-2 rounded-md transition-colors duration-200 {

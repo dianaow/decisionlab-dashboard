@@ -27,6 +27,99 @@
   let isLoading = true;
   let personas = ['Homeowners', 'Residents'];
 
+  onMount(() => {
+    const header = document.querySelector('header');
+    const adoptionSection = document.getElementById('adoptionSection');
+    const mainContainer = document.querySelector('.w-full.bg-background-dark');
+    
+    if (header) {
+      // Set header height CSS variable
+      const headerHeight = header.offsetHeight;
+      document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
+      
+      if (adoptionSection && mainContainer) {
+        // Create placeholder
+        const placeholder = document.createElement('div');
+        placeholder.style.display = 'none';
+        placeholder.style.height = `${adoptionSection.offsetHeight}px`;
+        placeholder.id = 'adoptionPlaceholder';
+        adoptionSection.parentNode.insertBefore(placeholder, adoptionSection);
+        
+        // Calculate initial position
+        const initialPosition = adoptionSection.getBoundingClientRect().top + window.scrollY;
+        
+        // Get initial container dimensions and inner content
+        const containerPadding = parseInt(window.getComputedStyle(mainContainer).paddingLeft) + 
+                              parseInt(window.getComputedStyle(mainContainer).paddingRight);
+        
+        // Find the .grid element inside adoptionSection
+        const gridElement = adoptionSection.querySelector('.grid');
+        
+        window.addEventListener('scroll', () => {
+          if (window.scrollY > initialPosition - headerHeight) {
+            if (!adoptionSection.classList.contains('is-sticky')) {
+              // Add fixed positioning
+              adoptionSection.classList.add('is-sticky');
+              
+              // Get container width and account for the padding of the parent container
+              const containerWidth = mainContainer.clientWidth - containerPadding;
+              
+              // Set width to containerWidth minus any padding
+              adoptionSection.style.width = `${containerWidth}px`;
+              
+              // For the grid layout, calculate the available space minus padding/margins
+              if (gridElement) {
+                // Ensure the grid gets full width minus any margins or padding
+                gridElement.style.width = '100%';
+                gridElement.style.maxWidth = '100%';
+              }
+              
+              // Find the exact left position to align with original container
+              const containerLeft = mainContainer.getBoundingClientRect().left;
+              adoptionSection.style.left = `${containerLeft + parseInt(window.getComputedStyle(mainContainer).paddingLeft)}px`;
+              
+              // Show placeholder
+              placeholder.style.display = 'block';
+            }
+          } else {
+            if (adoptionSection.classList.contains('is-sticky')) {
+              // Return to original positioning
+              adoptionSection.classList.remove('is-sticky');
+              adoptionSection.style.width = '';
+              adoptionSection.style.left = '';
+              
+              // Reset grid styles
+              if (gridElement) {
+                gridElement.style.width = '';
+                gridElement.style.maxWidth = '';
+              }
+              
+              // Hide placeholder
+              placeholder.style.display = 'none';
+            }
+          }
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+          if (adoptionSection.classList.contains('is-sticky')) {
+            // Get updated container width
+            const containerWidth = mainContainer.clientWidth - containerPadding;
+            adoptionSection.style.width = `${containerWidth}px`;
+            
+            // Update left position
+            const containerLeft = mainContainer.getBoundingClientRect().left;
+            adoptionSection.style.left = `${containerLeft + parseInt(window.getComputedStyle(mainContainer).paddingLeft)}px`;
+          }
+          
+          // Update placeholder height
+          placeholder.style.height = `${adoptionSection.offsetHeight}px`;
+        });
+      }
+      
+    }
+  });
+
   onMount(async () => {
     try {
       const response = await fetch('/data/canada_provinces.geojson');
@@ -71,8 +164,13 @@
     const colorMap = {
       "High Personal Support": "#00C2B2",
       "Low Personal Support": "#00C2B2",
-      "High Perceived Neighbors' Support": "#2F4144",
-      "Low Perceived Neighbors' Support": "#6B7280"
+      "High Perceived Neighbors' Support": "#6B7280",
+      "Low Perceived Neighbors' Support": "#6B7280",
+      "Adopted": "#2F4144",
+      "High Willingness, High Capability": "#00C2B2",
+      "High Willingness, Low Capability": "#00C2B2",
+      "Low Willingness, High Capability": "#6B7280",
+      "Low Willingness, Low Capability": "#6B7280",
     };
 
     // Step 4: Construct adoptionStats array
@@ -119,12 +217,13 @@
   };
 
   function getBarriersDriversStats(data, filters, attr) {
-    const filteredData = filterAndAggregateData(data.filter(d => d.attribute === attr), filters)
+    let filteredData = filterAndAggregateData(data.filter(d => d.attribute === attr), filters)
     filteredData.sort((a, b) => b.percentage - a.percentage)
     filteredData.forEach((d,i) => {
       d.number = i + 1
       d.description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor."
     })
+    filteredData = filteredData.filter(d => d.description !== 'None of the above')
     return filteredData.slice(0,3)
   }
 
@@ -226,6 +325,7 @@
 
     adoptionStats = calculateAdoptionStats(data, filters1);
     attributes = attributes_homeowners.filter(d => d.innovation === filters.innovation && d.adoption === filters.adoption)
+    console.log(adoptionStats)
   }
 
   $: mapData = mapGeoJSON;
@@ -334,7 +434,7 @@
   </aside>
   
   <div class='w-full bg-background-dark pt-28'>
-  <main class="hidden sm:block h-screen bg-background-dark px-4 sm:px-8 pb-2 my-3 sm:my-0">
+  <main class="hidden sm:block h-[calc(100vh-5.5rem)] bg-background-dark px-3 sm:px-6 pb-2 my-3 sm:my-0">
     <div class="relative h-full">
       {#if mapGeoJSON?.features?.length > 0}
         <Map bind:selectedProvince data={mapData} />
@@ -382,7 +482,7 @@
             </div>
       </div>
 
-      <div class="absolute bottom-0 w-full">
+      <div id="adoptionSection" class="sticky-panel w-full">
         <p class="subtitle-s ml-2 mb-3">Adoption Potential</p>
         <div class={`grid ${gridColClass}`}>
           {#each adoptionStats as stat}
@@ -423,38 +523,40 @@
   </main>
   
   <main class="block sm:hidden bg-background-dark px-4 sm:px-8 py-2 my-3 sm:my-0">
-    <p class="subtitle-s">Adoption Potential <span class="text-primary-darkgreen italic">for ADUs</span></p>
-    <div class="space-y-2 mt-3">
-      {#each adoptionStats as stat}
-        <div 
-          class="flex items-center justify-between border-t border-grey-linegreen cursor-pointer p-2 rounded-md transition-colors duration-200 {
-            selectedAdoption === stat.title 
-              ? 'bg-white shadow-sm text-primary-darkgreen' 
-              : 'hover:bg-gray-50'
-          }" 
-          on:click={() => selectAdoption(stat)}
-        >
-          <div class='caption mt-5'>{stat.title}</div>          
-          <div class="flex items-center gap-4">
-            <span>
-              <span class="body-s italic">{stat.count}</span>
-              <span class="body-s italic"> homeowners</span>
-            </span>
-            
-            <div class="w-32 flex items-center justify-end gap-2 mt-2">
-              <h3>{stat.percentage}%</h3>
-              <DonutChart 
-                size='small' 
-                percentage={stat.percentage} 
-                color={stat.variant} 
-                bgcolor={selectedAdoption === stat.title ? '#FFFFFF' : '#C6D0D0'} 
-                showPercentages={false} 
-                showDonut={false} 
-              />
+    <div id="mobileAdoptionSection">
+      <p class="subtitle-s">Adoption Potential <span class="text-primary-darkgreen italic">for ADUs</span></p>
+      <div class="mt-3">
+        {#each adoptionStats as stat}
+          <div 
+            class="flex items-center justify-between border-t border-grey-linegreen cursor-pointer p-2 rounded-md transition-colors duration-200 {
+              selectedAdoption === stat.title 
+                ? 'bg-white shadow-sm text-primary-darkgreen' 
+                : 'hover:bg-gray-50'
+            }" 
+            on:click={() => selectAdoption(stat)}
+          >
+            <div class='caption mt-5'>{stat.title}</div>          
+            <div class="flex items-center gap-4">
+              <span>
+                <span class="body-s italic">{stat.count}</span>
+                <span class="body-s italic"> homeowners</span>
+              </span>
+              
+              <div class="w-32 flex items-center justify-end gap-2 mt-2">
+                <h3>{stat.percentage}%</h3>
+                <DonutChart 
+                  size='small' 
+                  percentage={stat.percentage} 
+                  color={stat.variant} 
+                  bgcolor={selectedAdoption === stat.title ? '#FFFFFF' : '#C6D0D0'} 
+                  showPercentages={false} 
+                  showDonut={false} 
+                />
+              </div>
             </div>
           </div>
-        </div>
-      {/each}
+        {/each}
+      </div>
     </div>
   </main>
 
@@ -466,7 +568,7 @@
         householdIncome={householdIncome}
         locationData={locationData}
       />
-      {#if selectedPersona == 'Homeowners'}
+      {#if selectedPersona == 'Homeowners' && attributes.length > 0}
         <Attributes data={attributes} />
       {/if}
     </div>
@@ -502,4 +604,23 @@
    margin: 0;
    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
  }
+
+  /* Normal state: at the bottom of the map */
+  .sticky-panel {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+  }
+  
+  /* Sticky state: using CSS position: sticky */
+  @media (min-width: 640px) { /* sm breakpoint */
+    .sticky-panel.is-sticky {
+      position: fixed;
+      top: var(--header-height, 95px); /* Fallback value */
+      bottom: auto;
+      z-index: 20;
+      padding: 0px 24px;
+      background-color: #EBF0F0;
+    }
+  }
 </style>

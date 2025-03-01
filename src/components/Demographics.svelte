@@ -53,8 +53,9 @@
           <div class="flex justify-center w-1/2 @sm:w-full @md:w-3/4 mx-auto mt-3">
             <DonutChartLarge
               segments={sortedGender}
-              thickness="25%"
+              thickness="28%"
               showPercentages={true}
+              showBorder={false}
             />
           </div>
         </div>
@@ -106,7 +107,7 @@
             <div class="mb-6 w-1/2">
               <DonutChartLarge
                 segments={locationData}
-                thickness="25%"
+                thickness="28%"
                 showPercentages={false}
               />
             </div>

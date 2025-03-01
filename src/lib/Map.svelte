@@ -19,9 +19,10 @@
   let currentTransform = zoomIdentity; // Store current transform
   let previousProvince = ''; // Track previous selection
   let isInternalUpdate = false; // Flag for internal updates
+  let isClicked = false;
 
   const projection = geoMercator()
-    .center([-96, 55.5]);
+    .center([-96, 57]);
     
   const path = geoPath().projection(projection);
 
@@ -62,7 +63,7 @@
       height = rect.height;
       
       projection
-        .scale(Math.min(width, height) * 0.6)
+        .scale(Math.min(width, height) * 0.65)
         .translate([width / 2, height / 2]);
         
       if (svg) {
@@ -94,7 +95,7 @@
     const svgElement = select(svg);
     const g = select(mapGroup);
     
-    svgElement.call(mapZoom);
+    //svgElement.call(mapZoom);
     
     // try {
     //   const response = await fetch('src/data/canada_provinces.geojson');
@@ -112,6 +113,12 @@
           isInternalUpdate = true;
           selectedProvince = d.properties.name;
           //zoomToProvince(d);
+          if(!isClicked) {
+            selectedProvince = d.properties.name;
+          } else {
+            selectedProvince = "Select a Province"
+          }
+          isClicked = !isClicked
         })
         .on('mouseover', function(event, d) {
           const matchingPolygons = g.selectAll('path')
