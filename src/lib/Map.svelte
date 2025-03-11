@@ -86,7 +86,6 @@
   }
 
   onMount(async () => {
-    console.log('map', data)
     resizeObserver = new ResizeObserver(updateDimensions);
     resizeObserver.observe(container);
     

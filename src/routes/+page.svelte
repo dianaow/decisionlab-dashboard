@@ -14,7 +14,8 @@
   import data_homeowners from '../data/data_homeowners.json';
   import data_residents from '../data/data_residents.json';
   import attributes_homeowners from '../data/attributes_homeowners.json';
-  
+  import { goto } from '$app/navigation';
+
   let mapGeoJSON = { features: [] };
   let selectedProvinceObj = {}
   let selectedProvince = 'Select a Province'
@@ -133,6 +134,10 @@
       isLoading = false;
     }
   });
+
+  function directToCompare() {
+    goto('/compare')
+  }
 
   function selectAdoption(stat) {
     selectedAdoption = stat.title;
@@ -325,7 +330,6 @@
 
     adoptionStats = calculateAdoptionStats(data, filters1);
     attributes = attributes_homeowners.filter(d => d.innovation === filters.innovation && d.adoption === filters.adoption)
-    console.log(adoptionStats)
   }
 
   $: mapData = mapGeoJSON;
@@ -473,7 +477,7 @@
                 </svg>
                 SHARE
               </button>
-              <button class="px-2 py-2 border border-teal-500 text-teal-500 rounded-sm flex items-center gap-2">
+              <button class="px-2 py-2 border border-teal-500 text-teal-500 rounded-sm flex items-center gap-2" on:click={directToCompare}>
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>

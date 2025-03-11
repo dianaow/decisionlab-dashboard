@@ -13,6 +13,7 @@
   import data_homeowners from '../../data/data_homeowners.json';
   import data_residents from '../../data/data_residents.json';
   import attributes_homeowners from '../../data/attributes_homeowners.json';
+  import { goto } from '$app/navigation';
 
   // Initial states for both panels
   let panel1Values = {
@@ -203,7 +204,6 @@
     dataAll2 = panel2Values.persona === 'Homeowners' ? data_homeowners : data_residents
     data1 = filterAllData(dataAll1, panel1Values)
     data2 = filterAllData(dataAll2, panel2Values)
-    console.log(panel1Values, data1)
   }
 
   const trustSources = [
@@ -253,7 +253,8 @@
   ];
 
   function handleBack() {
-    // Handle back navigation
+    // Navigate to home page
+    goto('/');
   }
 
   function handleDownload() {
@@ -334,7 +335,7 @@
     
     <div>
       <p class="subtitle-s">Adoption Potential <span class="text-primary-darkgreen italic">for ADUs</span></p>
-      <div class="space-y-2 mt-3">
+      <div class="mt-3">
         {#each data2.adoptionStats as stat}
           <div 
             class="flex items-center justify-between border-t border-grey-linegreen cursor-pointer p-2 rounded-md transition-colors duration-200 {
