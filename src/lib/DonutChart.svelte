@@ -7,6 +7,7 @@
   export let showPercentages = true;
   export let showDonut = true;
   export let selected = false;
+  export let isHovered = false;
 
   // Simplified size classes to maintain perfect circles
   $: sizeClasses = {
@@ -34,7 +35,7 @@
     style="background: conic-gradient({color} {percentage}%, {bgcolor} {percentage}% 100%)"
   />
   <div
-    class="{showDonut ? 'bg-background-dark' : ''} {selected ? 'bg-primary-darkgreen' : ''} 
+    class="{showDonut ? 'bg-background-dark' : ''} {selected ? 'bg-primary-darkgreen' : ''} {isHovered && !selected ? 'bg-white' : ''} 
            absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 {centerClasses} 
            rounded-full flex items-center justify-center"
   >

@@ -14,25 +14,68 @@
   import data_residents from '../../data/data_residents.json';
   import attributes_homeowners from '../../data/attributes_homeowners.json';
   import { goto } from '$app/navigation';
-
+  import { onMount } from 'svelte';
+  
   // Initial states for both panels
   let panel1Values = {
-    province: 'Alberta',
+    province: 'Select a Province',
     urbanicity: 'Select an Urbanicity',
     innovation: 'ADU',
-    adoption: 'Select an Adoption',
+    adoption: 'Adopted',
     persona: 'Homeowners'
   };
    
   let panel2Values = {
-    province: 'Ontario',
+    province: 'Select a Province',
     urbanicity: 'Select an Urbanicity',
     innovation: 'ADU',
-    adoption: 'Select an Adoption',
+    adoption: 'Adopted',
     persona: 'Homeowners'
   };
 
   let data1, data2, dataAll1, dataAll2
+
+  // Add sticky state tracking
+  let isFilterSticky = false;
+  let isAdoptionSticky = false;
+  let filterPanelHeight = 0;
+  
+  // References to DOM elements
+  let filterPanelRef;
+  let adoptionPanelRef;
+  let mainContentRef;
+
+  onMount(() => {
+    const handleScroll = () => {
+      if (!filterPanelRef || !adoptionPanelRef || !mainContentRef) return;
+      
+      const filterPanelTop = filterPanelRef.offsetTop;
+      const adoptionPanelTop = adoptionPanelRef.offsetTop;
+      
+      isFilterSticky = window.scrollY > filterPanelTop;
+      
+      if (isFilterSticky) {
+        filterPanelHeight = filterPanelRef.offsetHeight + 90;
+        isAdoptionSticky = true;
+        
+        const totalStickyHeight = filterPanelHeight + adoptionPanelRef.offsetHeight;
+        mainContentRef.style.paddingTop = `${totalStickyHeight}px`;
+      } else {
+        isAdoptionSticky = window.scrollY > adoptionPanelTop;
+        mainContentRef.style.paddingTop = isAdoptionSticky ? `${adoptionPanelRef.offsetHeight}px` : '0';
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    
+    setTimeout(handleScroll, 100);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  });
 
   // Handle changes from each panel
   function handlePanel1Change(event) {
@@ -194,16 +237,32 @@
     
     const locationData = getProvinceStats(data.filter(d => d.attribute === 'Gender'), {...filters, province: 'Select'})
     const adoptionStats = calculateAdoptionStats(data, {...filters, adoption: 'Select'});
-    const attributes = attributes_homeowners.filter(d => d.innovation === filters.innovation && d.adoption === filters.adoption)
+    
+    // Only include attributes for Homeowners
+    const attributes = filters.persona === 'Homeowners' ? 
+      attributes_homeowners.filter(d => d.innovation === filters.innovation && d.adoption === filters.adoption) : 
+      [];
 
-    return {gender, ageGroup, housingTypes, householdIncome, householdComposition, keyInfo, barriers, drivers, locationData, adoptionStats, attributes}
+    return {
+      gender, 
+      ageGroup, 
+      housingTypes, 
+      householdIncome, 
+      householdComposition, 
+      keyInfo, 
+      barriers, 
+      drivers, 
+      locationData, 
+      adoptionStats, 
+      attributes
+    }
   }
 
   $: {
-    dataAll1 = panel1Values.persona === 'Homeowners' ? data_homeowners : data_residents
-    dataAll2 = panel2Values.persona === 'Homeowners' ? data_homeowners : data_residents
-    data1 = filterAllData(dataAll1, panel1Values)
-    data2 = filterAllData(dataAll2, panel2Values)
+    dataAll1 = panel1Values.persona === 'Homeowners' ? data_homeowners : data_residents;
+    dataAll2 = panel2Values.persona === 'Homeowners' ? data_homeowners : data_residents;
+    data1 = filterAllData(dataAll1, panel1Values);
+    data2 = filterAllData(dataAll2, panel2Values);
   }
 
   const trustSources = [
@@ -257,26 +316,26 @@
     goto('/');
   }
 
-  function handleDownload() {
-    // Handle download action
-  }
+  // function handleDownload() {
+  //   // Handle download action
+  // }
 
-  function handleShare() {
-    // Handle share action
-  }
+  // function handleShare() {
+  //   // Handle share action
+  // }
 
   function handleMenuToggle() {
     // Handle menu open/close logic
   }
 </script>
-<div class="flex flex-col h-auto">
+<div class="flex flex-col min-h-screen">
   <Header on:toggleMenu={handleMenuToggle} />
-  <CompareHeader 
-    on:back={handleBack}
-    on:download={handleDownload}
-    on:share={handleShare}
-  />
-  <aside id='dropdownPanel' class="mt-6 grid grid-cols-2 gap-6 w-full bg-grey-darkgreen px-6 text-white">    
+  <CompareHeader on:back={handleBack} />
+  
+  <!-- Filter Panel with sticky behavior -->
+  <div bind:this={filterPanelRef} 
+       class="mt-6 grid grid-cols-2 gap-6 w-full bg-grey-darkgreen px-6 text-white"
+       class:sticky={isFilterSticky}>
     <div>
       <FilterPanel 
         id="panel1"
@@ -293,156 +352,251 @@
         on:change={handlePanel2Change}
       />
     </div>
-  </aside>
+  </div>
 
- <div class='w-full bg-background-dark'> 
-  <main class="grid grid-cols-2 gap-6 bg-background-dark px-4 sm:px-8 py-3 my-3 sm:my-0">
-    <div>
-      <p class="subtitle-s">Adoption Potential <span class="text-primary-darkgreen italic">for ADUs</span></p>
-      <div class="mt-3">
-        {#each data1.adoptionStats as stat}
-          <div 
-            class="flex items-center justify-between border-t border-grey-linegreen cursor-pointer p-2 rounded-md transition-colors duration-200 {
-              panel1Values.adoption === stat.title 
-                ? 'bg-white shadow-sm text-primary-darkgreen' 
-                : 'hover:bg-gray-50'
-            }" 
-            on:click={() => selectAdoption1(stat)}
-          >
-            <div class='caption mt-5'>{stat.title}</div>          
-            <div class="flex items-center gap-4">
-              <span>
-                <span class="body-s italic">{stat.count}</span>
-                <span class="body-s italic"> homeowners</span>
-              </span>
-              
-              <div class="w-32 flex items-center justify-end gap-2 mt-2">
-                <h3>{stat.percentage}%</h3>
-                <DonutChart 
-                  size='small' 
-                  percentage={stat.percentage} 
-                  color={stat.variant} 
-                  bgcolor={'#C6D0D0'} 
-                  showPercentages={false} 
-                  showDonut={false} 
-                />
-              </div>
-            </div>
-          </div>
-        {/each}
-      </div>
-    </div>
+  <!-- Adoption Panel with sticky behavior -->
+  <div bind:this={adoptionPanelRef} 
+       class="w-full"
+       class:adoption-sticky={isAdoptionSticky}
+       style={isFilterSticky ? `top: ${filterPanelHeight}px;` : 'top: 0;'}>
     
-    <div>
-      <p class="subtitle-s">Adoption Potential <span class="text-primary-darkgreen italic">for ADUs</span></p>
-      <div class="mt-3">
-        {#each data2.adoptionStats as stat}
-          <div 
-            class="flex items-center justify-between border-t border-grey-linegreen cursor-pointer p-2 rounded-md transition-colors duration-200 {
-              panel2Values.adoption === stat.title 
-                ? 'bg-white shadow-sm text-primary-darkgreen' 
-                : 'hover:bg-gray-50'
-            }" 
-            on:click={() => selectAdoption2(stat)}
-          >
-            <div class='caption mt-5'>{stat.title}</div>          
-            <div class="flex items-center gap-4">
-              <span>
-                <span class="body-s italic">{stat.count}</span>
-                <span class="body-s italic"> homeowners</span>
-              </span>
-              
-              <div class="w-32 flex items-center justify-end gap-2 mt-2">
-                <h3>{stat.percentage}%</h3>
-                <DonutChart 
-                  size='small' 
-                  percentage={stat.percentage} 
-                  color={stat.variant} 
-                  bgcolor={'#C6D0D0'} 
-                  showPercentages={false} 
-                  showDonut={false} 
-                />
+    {#if isAdoptionSticky}
+      <div class="grid grid-cols-2 gap-6">
+        <!-- First panel selected adoption -->
+        <div>
+          {#if panel1Values.adoption && data1?.adoptionStats}
+            {#each data1.adoptionStats.filter(stat => stat.title === panel1Values.adoption) as stat}
+              <div class="flex items-center justify-between p-2">
+                <div class='caption'>{stat.title}</div>          
+                <div class="flex items-center gap-4">
+                  <span>
+                    <span class="body-s italic">{stat.count}</span>
+                    <span class="body-s italic"> homeowners</span>
+                  </span>
+                  
+                  <div class="w-32 flex items-center justify-end gap-2">
+                    <h3>{stat.percentage}%</h3>
+                    <DonutChart 
+                      size='small' 
+                      percentage={stat.percentage} 
+                      color={stat.variant} 
+                      bgcolor={'#C6D0D0'} 
+                      showPercentages={false} 
+                      showDonut={false} 
+                    />
+                  </div>
+                </div>
               </div>
+            {/each}
+          {/if}
+        </div>
+        
+        <!-- Second panel selected adoption -->
+        <div>
+          {#if panel2Values.adoption && data2?.adoptionStats}
+            {#each data2.adoptionStats.filter(stat => stat.title === panel2Values.adoption) as stat}
+              <div class="flex items-center justify-between p-2">
+                <div class='caption'>{stat.title}</div>          
+                <div class="flex items-center gap-4">
+                  <span>
+                    <span class="body-s italic">{stat.count}</span>
+                    <span class="body-s italic"> homeowners</span>
+                  </span>
+                  
+                  <div class="w-32 flex items-center justify-end gap-2">
+                    <h3>{stat.percentage}%</h3>
+                    <DonutChart 
+                      size='small' 
+                      percentage={stat.percentage} 
+                      color={stat.variant} 
+                      bgcolor={'#C6D0D0'} 
+                      showPercentages={false} 
+                      showDonut={false} 
+                    />
+                  </div>
+                </div>
+              </div>
+            {/each}
+          {/if}
+        </div>
+      </div>
+    {:else}
+      <div class="bg-background-dark px-4 sm:px-8 py-3">
+        <main class="grid grid-cols-2 gap-6">
+          <!-- Regular adoption panels content -->
+          <div>
+            <p class="subtitle-s">Adoption Potential <span class="text-primary-darkgreen italic">for ADUs</span></p>
+            <div class="mt-3">
+              {#each data1.adoptionStats as stat}
+                <div 
+                  class="flex items-center justify-between border-t border-grey-linegreen cursor-pointer p-2 rounded-md transition-colors duration-200 {
+                    panel1Values.adoption === stat.title 
+                      ? 'bg-white shadow-sm text-primary-darkgreen' 
+                      : 'hover:bg-gray-50'
+                  }" 
+                  on:click={() => selectAdoption1(stat)}
+                >
+                  <div class='caption mt-5'>{stat.title}</div>          
+                  <div class="flex items-center gap-4">
+                    <span>
+                      <span class="body-s italic">{stat.count}</span>
+                      <span class="body-s italic"> homeowners</span>
+                    </span>
+                    
+                    <div class="w-32 flex items-center justify-end gap-2 mt-2">
+                      <h3>{stat.percentage}%</h3>
+                      <DonutChart 
+                        size='small' 
+                        percentage={stat.percentage} 
+                        color={stat.variant} 
+                        bgcolor={'#C6D0D0'} 
+                        showPercentages={false} 
+                        showDonut={false} 
+                      />
+                    </div>
+                  </div>
+                </div>
+              {/each}
             </div>
           </div>
-        {/each}
+          
+          <div>
+            <p class="subtitle-s">Adoption Potential <span class="text-primary-darkgreen italic">for ADUs</span></p>
+            <div class="mt-3">
+              {#each data2.adoptionStats as stat}
+                <div 
+                  class="flex items-center justify-between border-t border-grey-linegreen cursor-pointer p-2 rounded-md transition-colors duration-200 {
+                    panel2Values.adoption === stat.title 
+                      ? 'bg-white shadow-sm text-primary-darkgreen' 
+                      : 'hover:bg-gray-50'
+                  }" 
+                  on:click={() => selectAdoption2(stat)}
+                >
+                  <div class='caption mt-5'>{stat.title}</div>          
+                  <div class="flex items-center gap-4">
+                    <span>
+                      <span class="body-s italic">{stat.count}</span>
+                      <span class="body-s italic"> homeowners</span>
+                    </span>
+                    
+                    <div class="w-32 flex items-center justify-end gap-2 mt-2">
+                      <h3>{stat.percentage}%</h3>
+                      <DonutChart 
+                        size='small' 
+                        percentage={stat.percentage} 
+                        color={stat.variant} 
+                        bgcolor={'#C6D0D0'} 
+                        showPercentages={false} 
+                        showDonut={false} 
+                      />
+                    </div>
+                  </div>
+                </div>
+              {/each}
+            </div>
+          </div>
+        </main>
       </div>
-    </div>
-  </main>
+    {/if}
+  </div>
 
-  <main class="min-h-screen bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
-    <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6 mt-5">
-      <Demographics
-        gender={data1.gender}
-        ageGroup={data1.ageGroup}
-        householdIncome={data1.householdIncome}
-        locationData={data1.locationData}
-      />
-      <Demographics
-        gender={data2.gender}
-        ageGroup={data2.ageGroup}
-        householdIncome={data2.householdIncome}
-        locationData={data2.locationData}
-      />
-    </div>
-  </main>
-   
-  <main class="bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
-    <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6 mt-5">
-      {#if panel1Values.persona == 'Homeowners' && data1.attributes.length > 0}
-        <Attributes data={data1.attributes} />
-      {/if}
-      {#if panel2Values.persona == 'Homeowners' && data2.attributes.length > 0}
-        <Attributes data={data2.attributes} />
-      {/if}
-    </div>
-  </main>
+  <!-- Main content with reference for padding adjustment -->
+  <div bind:this={mainContentRef} class="bg-background-light flex-1">
+    <main class="min-h-screen bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
+      <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6 mt-5">
+        <Demographics
+          gender={data1.gender}
+          ageGroup={data1.ageGroup}
+          householdIncome={data1.householdIncome}
+          locationData={data1.locationData}
+        />
+        <Demographics
+          gender={data2.gender}
+          ageGroup={data2.ageGroup}
+          householdIncome={data2.householdIncome}
+          locationData={data2.locationData}
+        />
+      </div>
+    </main>
+     
+    <main class="bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
+      <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6 mt-5">
+        {#if panel1Values.persona == 'Homeowners' && data1.attributes.length > 0}
+          <Attributes data={data1.attributes} />
+        {/if}
+        {#if panel2Values.persona == 'Homeowners' && data2.attributes.length > 0}
+          <Attributes data={data2.attributes} />
+        {/if}
+      </div>
+    </main>
 
-  <main class="bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
-    <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6">
-      <BarriersDrivers 
-        barriers={data1.barriers}
-        drivers={data1.drivers}
-      />
-      <BarriersDrivers 
-        barriers={data2.barriers}
-        drivers={data2.drivers}
-      />
-    </div>
-  </main>
+    <main class="bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
+      <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6">
+        <BarriersDrivers 
+          barriers={data1.barriers}
+          drivers={data1.drivers}
+        />
+        <BarriersDrivers 
+          barriers={data2.barriers}
+          drivers={data2.drivers}
+        />
+      </div>
+    </main>
 
-  <main class="bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
-    <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6">
-      <CurrentHousing 
-        housingTypes={data1.housingTypes}
-        householdComposition={data1.householdComposition}
-      />
-      <CurrentHousing 
-        housingTypes={data2.housingTypes}
-        householdComposition={data2.householdComposition}
-      />
-    </div>
-  </main>
+    <main class="bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
+      <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6">
+        <CurrentHousing 
+          housingTypes={data1.housingTypes}
+          householdComposition={data1.householdComposition}
+        />
+        <CurrentHousing 
+          housingTypes={data2.housingTypes}
+          householdComposition={data2.householdComposition}
+        />
+      </div>
+    </main>
 
-  <main class="flex bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
-    <KeyCommunication 
-      keyInfo={data1.keyInfo}
-      trustSources={trustSources}
-      distrustSources={distrustSources}
-    />
-    <KeyCommunication 
-      keyInfo={data2.keyInfo}
-      trustSources={trustSources}
-      distrustSources={distrustSources}
-    />
-  </main>
- </div>
- <Footer />
+    <main class="flex bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
+      <KeyCommunication 
+        keyInfo={data1.keyInfo}
+        trustSources={trustSources}
+        distrustSources={distrustSources}
+      />
+      <KeyCommunication 
+        keyInfo={data2.keyInfo}
+        trustSources={trustSources}
+        distrustSources={distrustSources}
+      />
+    </main>
+  </div>
 </div>
+
+<Footer />
 
 <style>
  :global(body) {
    margin: 0;
    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
  }
+
+ .sticky {
+    position: fixed;
+    width: 100%;
+    left: 0;
+    right: 0;
+    top: 65px;
+    z-index: 30;
+    background-color: #2d3b3d;
+  }
+
+  .adoption-sticky {
+    position: fixed;
+    width: 100%;
+    left: 0;
+    right: 0;
+    z-index: 29;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 1.5rem;
+  }
 </style>

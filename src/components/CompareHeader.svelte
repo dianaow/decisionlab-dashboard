@@ -38,7 +38,7 @@
     <div class='font-secondary text-[26px] leading-[39px] font-medium text-white'>Compare Data Results</div>
   </div>
 
-  <div class="flex space-x-4">
+  <!-- <div class="flex space-x-4">
     <button
       on:click={handleDownload}
       class="flex items-center px-4 py-2 text-sm text-white border border-white rounded hover:bg-white hover:bg-opacity-10 transition-colors"
@@ -79,7 +79,7 @@
       </svg>
       SHARE
     </button>
-  </div>
+  </div> -->
 </header>
 
 <style>

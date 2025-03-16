@@ -3,7 +3,7 @@
   import Card from '../lib/Card.svelte';
   import Container from '../lib/Container.svelte';
 
-  export let gender, ageGroup, householdIncome, locationData
+  export let gender, ageGroup, householdIncome, locationData, format
 
   const order = ['Man', 'Non-binary', 'Woman', 'Prefer not to answer'];
   const colorMap = {
@@ -27,7 +27,7 @@
 </script>
 
 <Card title="Demographics">
-  <div class='space-y-4 sm:space-y-6 @container'>
+  <div class={`${format === 'block' ? 'space-y-4 sm:space-y-6' : 'space-x-6'} @container ${format}`}>
     <Container>
       <div class="grid grid-cols-1 gap-8 sm:gap-12 @sm:grid-cols-2">
         <div class="flex flex-col">
@@ -42,13 +42,13 @@
               <p>Female</p>
             </div>
             <div class="flex items-center gap-2">
-                <div class="w-5 h-2.5 bg-grey-light rounded-full"></div>
-                <p>Non-binary</p>
-              </div>
-              <div class="flex items-center gap-2">
-                <div class="w-5 h-2.5 bg-grey-dark rounded-full"></div>
-                <p>Prefer not to answer</p>
-              </div>
+              <div class="w-5 h-2.5 bg-grey-light rounded-full"></div>
+              <p>Non-binary</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-2.5 bg-grey-dark rounded-full"></div>
+              <p>Prefer not to answer</p>
+            </div>
           </div>
           <div class="flex justify-center w-1/2 @sm:w-full @md:w-3/4 mx-auto mt-3">
             <DonutChartLarge
@@ -66,10 +66,10 @@
             {#each ageGroup as group}
               <div class="flex items-center gap-3">
                 <p class="w-20">{group.index}</p>
-                  <div class="h-4 bg-primary-darkgreen rounded-full" 
-                      style="width: {group.percentage}%"
-                  ></div>
-                  <div class="body-s">{group.percentage}%</div>
+                <div class="h-4 bg-primary-darkgreen rounded-full" 
+                    style="width: {group.percentage}%"
+                ></div>
+                <div class="body-s">{group.percentage}%</div>
               </div>
             {/each}
           </div>

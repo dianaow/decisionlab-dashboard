@@ -7,31 +7,33 @@
 </script>
 
 <Card title="Key Communication Considerations">  
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <Container>
-      <p class='caption'>Key Pieces of Information</p>
-      <BarChart
-        data={keyInfo}
-      />
-    </Container>
+  <div class="@container">
+    <div class="grid grid-cols-1 @[800px]:grid-cols-2 gap-6">
+      <Container>
+        <p class='caption'>Key Pieces of Information</p>
+        <BarChart
+          data={keyInfo}
+        />
+      </Container>
 
-    <Container>
-      <div class="grid sm:grid-cols-2 gap-6">
-        <div>
-          <p class='caption'>Sources of Trust</p>
-          <BarChart
-            data={trustSources}
-          />
+      <Container>
+        <div class="grid grid-cols-1 @[400px]:grid-cols-2 gap-6">
+          <div>
+            <p class='caption'>Sources of Trust</p>
+            <BarChart
+              data={trustSources}
+            />
+          </div>
+          
+          <div class="relative pl-6 @[400px]:pl-6 @[400px]:border-l border-grey-linegreen">
+            <p class='caption'>Sources of Distrust</p>
+            <BarChart
+              data={distrustSources}
+            />
+          </div>
         </div>
-        
-        <div>
-          <p class='caption'>Sources of Distrust</p>
-          <BarChart
-            data={distrustSources}
-          />
-        </div>
-      </div>
-    </Container>
+      </Container>
+    </div>
   </div>
 
   <div class="mt-8">
