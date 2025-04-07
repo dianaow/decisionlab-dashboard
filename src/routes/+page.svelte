@@ -524,7 +524,7 @@
       <div class="adoption-title-wrapper" bind:this={adoptionTitleRef}>
         <p class="subtitle-s ml-8 mb-4">
           Adoption Potential 
-          <span class="text-primary-darkgreen italic">
+          <span class="text-primary-green italic">
             for {selectedInnovation}
           </span>
         </p>

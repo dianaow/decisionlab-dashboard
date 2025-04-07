@@ -13,7 +13,7 @@
   $: sizeClasses = {
     large: 'w-20 h-20',
     medium: 'w-16 h-16',
-    small: 'w-12 h-12'
+    small: 'w-10 h-10'
   }[size];
 
   $: centerClasses = {

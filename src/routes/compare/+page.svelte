@@ -366,7 +366,7 @@
         <div>
           {#if panel1Values.adoption && data1?.adoptionStats}
             {#each data1.adoptionStats.filter(stat => stat.title === panel1Values.adoption) as stat}
-              <div class="flex items-center justify-between p-2">
+              <div class="pl-6 pr-6 flex items-center justify-between">
                 <div class='caption'>{stat.title}</div>          
                 <div class="flex items-center gap-4">
                   <span>
@@ -375,7 +375,7 @@
                   </span>
                   
                   <div class="w-32 flex items-center justify-end gap-2">
-                    <h3>{stat.percentage}%</h3>
+                    <div class="subtitle-s">{stat.percentage}%</div>
                     <DonutChart 
                       size='small' 
                       percentage={stat.percentage} 
@@ -395,7 +395,7 @@
         <div>
           {#if panel2Values.adoption && data2?.adoptionStats}
             {#each data2.adoptionStats.filter(stat => stat.title === panel2Values.adoption) as stat}
-              <div class="flex items-center justify-between p-2">
+              <div class="pl-6 pr-6 flex items-center justify-between">
                 <div class='caption'>{stat.title}</div>          
                 <div class="flex items-center gap-4">
                   <span>
@@ -404,7 +404,7 @@
                   </span>
                   
                   <div class="w-32 flex items-center justify-end gap-2">
-                    <h3>{stat.percentage}%</h3>
+                    <div class="subtitle-s">{stat.percentage}%</div>
                     <DonutChart 
                       size='small' 
                       percentage={stat.percentage} 
@@ -425,11 +425,16 @@
         <main class="grid grid-cols-2">
           <!-- Regular adoption panels content -->
           <div>
-            <p class="pr-12 pl-12 pt-5 pb-1 subtitle-s">Adoption Potential <span class="text-primary-green italic">for ADUs</span></p>
+            <p class="pr-12 pl-12 pt-5 pb-1 subtitle-s">
+              Adoption Potential 
+              <span class="text-primary-green italic">
+                for {panel1Values.innovation}
+              </span>
+            </p>
             <div class="mt-3">
               {#each data1.adoptionStats as stat}
                 <div 
-                  class="pr-12 pl-12 flex items-center justify-between border-t border-grey-linegreen cursor-pointer p-0.5 transition-colors duration-200 {
+                  class="pr-12 pl-12 flex items-center justify-between border-t border-grey-linegreen cursor-pointer pb-2 transition-colors duration-200 {
                     panel1Values.adoption === stat.title 
                       ? 'bg-white shadow-sm text-primary-darkgreen' 
                       : 'hover:bg-gray-50'
@@ -444,7 +449,7 @@
                     </span>
                     
                     <div class="w-32 flex items-center justify-end gap-2 mt-2">
-                      <h3>{stat.percentage}%</h3>
+                      <div class="subtitle-s">{stat.percentage}%</div>
                       <DonutChart 
                         size='small' 
                         percentage={stat.percentage} 
@@ -461,11 +466,16 @@
           </div>
           
           <div>
-            <p class="pl-9 pr-12 pt-5 pb-1 subtitle-s">Adoption Potential <span class="text-primary-green italic">for ADUs</span></p>
+            <p class="pl-9 pr-12 pt-5 pb-1 subtitle-s">
+              Adoption Potential 
+              <span class="text-primary-green italic">
+                for {panel2Values.innovation}
+              </span>
+            </p>
             <div class="mt-3">
               {#each data2.adoptionStats as stat}
                 <div 
-                  class="pl-9 pr-12 flex items-center justify-between border-t border-grey-linegreen cursor-pointer p-0.5 transition-colors duration-200 {
+                  class="pl-9 pr-12 flex items-center justify-between border-t border-grey-linegreen cursor-pointer pb-2 transition-colors duration-200 {
                     panel2Values.adoption === stat.title 
                       ? 'bg-white shadow-sm text-primary-darkgreen' 
                       : 'hover:bg-gray-50'
@@ -480,7 +490,7 @@
                     </span>
                     
                     <div class="w-32 flex items-center justify-end gap-2 mt-2">
-                      <h3>{stat.percentage}%</h3>
+                      <div class="subtitle-s">{stat.percentage}%</div>
                       <DonutChart 
                         size='small' 
                         percentage={stat.percentage} 
@@ -502,7 +512,7 @@
 
   <!-- Main content with reference for padding adjustment -->
   <div bind:this={mainContentRef} class="bg-background-light flex-1">
-    <main class="min-h-screen bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
+    <main class="min-h-screen bg-background-light px-4 sm:px-8 py-3 sm:my-0">
       <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6 mt-5">
         <Demographics
           gender={data1.gender}
@@ -521,8 +531,8 @@
       </div>
     </main>
      
-    {#if panel1Values.persona == 'Homeowners' && panel2Values.persona == 'Homeowners'}
-      <main class="bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
+    {#if panel1Values.persona == 'Homeowners' && panel2Values.persona == 'Homeowners' && data1.attributes.length > 0 && data2.attributes.length > 0}
+      <main class="bg-background-light px-4 sm:px-8 py-3 sm:my-0">
         <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6 mt-5">
           {#if panel1Values.persona == 'Homeowners' && data1.attributes.length > 0}
             <Attributes data={data1.attributes} />
@@ -534,7 +544,7 @@
       </main>
     {/if}
 
-    <main class="bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
+    <main class="bg-background-light px-4 sm:px-8 py-3 sm:my-0">
       <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6">
         <BarriersDrivers 
           barriers={data1.barriers}
@@ -547,7 +557,7 @@
       </div>
     </main>
 
-    <main class="bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
+    <main class="bg-background-light px-4 sm:px-8 py-3 sm:my-0">
       <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6">
         <CurrentHousing 
           housingTypes={data1.housingTypes}
@@ -560,7 +570,7 @@
       </div>
     </main>
 
-    <main class="flex bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
+    <main class="flex bg-background-light px-4 sm:px-8 py-3 sm:my-0">
       <KeyCommunication 
         keyInfo={data1.keyInfo}
         trustSources={trustSources}
