@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte';
+  import FilterButtons from './FilterButtons.svelte';
   const dispatch = createEventDispatcher();
 
   function handleBack() {
@@ -15,8 +16,8 @@
   }
 </script>
 
-<header class="sticky top-24 z-50 bg-grey-darkgreen px-6 py-4 flex items-center justify-between">
-  <div class="flex items-center space-x-3">
+<header class="bg-grey-darkgreen px-6 py-4">
+  <div class="flex items-center space-x-3 mb-6">
     <button 
       on:click={handleBack}
       class="text-white hover:text-gray-200 flex items-center"
@@ -36,6 +37,11 @@
       <span class="ml-2 text-sm">Back</span>
     </button>
     <div class='font-secondary text-[26px] leading-[39px] font-medium text-white'>Compare Data Results</div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-6">
+    <FilterButtons title="Filters #1" />
+    <FilterButtons title="Filters #2" />
   </div>
 
   <!-- <div class="flex space-x-4">

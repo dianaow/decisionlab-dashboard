@@ -11,21 +11,21 @@
 
   // Simplified size classes to maintain perfect circles
   $: sizeClasses = {
-    large: 'w-24 h-24',
+    large: 'w-20 h-20',
     medium: 'w-16 h-16',
     small: 'w-12 h-12'
   }[size];
 
   $: centerClasses = {
-    large: 'w-20 h-20',
+    large: 'w-16 h-16',
     medium: 'w-12 h-12',
     small: 'w-10 h-10'
   }[size];
 
   $: fontSizeClasses = {
-    large: 'text-xl',
-    medium: 'text-base',
-    small: 'text-sm'
+    large: 'text-base',
+    medium: 'text-sm',
+    small: 'text-xs'
   }[size];
 </script>
 

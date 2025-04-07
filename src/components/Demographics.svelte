@@ -27,57 +27,59 @@
 </script>
 
 <Card title="Demographics">
-  <div class={`${format === 'block' ? 'space-y-4 sm:space-y-6' : 'space-x-6'} @container ${format}`}>
-    <Container>
-      <div class="grid grid-cols-1 gap-8 sm:gap-12 @sm:grid-cols-2">
-        <div class="flex flex-col">
-          <p class='caption'>Gender</p>
-          <div class="grid grid-cols-2 gap-2">
-            <div class="flex items-center gap-2">
-              <div class="w-5 h-2.5 bg-primary-darkgreen rounded-full"></div>
-              <p>Male</p>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-5 h-2.5 bg-primary-teal rounded-full"></div>
-              <p>Female</p>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-5 h-2.5 bg-grey-light rounded-full"></div>
-              <p>Non-binary</p>
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-5 h-2.5 bg-grey-dark rounded-full"></div>
-              <p>Prefer not to answer</p>
-            </div>
-          </div>
-          <div class="flex justify-center w-1/2 @sm:w-full @md:w-3/4 mx-auto mt-3">
-            <DonutChartLarge
-              segments={sortedGender}
-              thickness="28%"
-              showPercentages={true}
-              showBorder={false}
-            />
-          </div>
-        </div>
-
-        <div>
-          <p class='caption'>Age Group</p>
-          <div class="space-y-3">
-            {#each ageGroup as group}
-              <div class="flex items-center gap-3">
-                <p class="w-20">{group.index}</p>
-                <div class="h-4 bg-primary-darkgreen rounded-full" 
-                    style="width: {group.percentage}%"
-                ></div>
-                <div class="body-s">{group.percentage}%</div>
+  <div class={`${format === 'block' ? 'space-y-4 sm:space-y-6' : ''} @container ${format}`}>
+    <div>
+      <Container>
+        <div class="grid grid-cols-1 gap-8 sm:gap-12 @sm:grid-cols-2">
+          <div class="flex flex-col">
+            <p class='caption'>Gender</p>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-2.5 bg-primary-darkgreen rounded-full"></div>
+                <p>Male</p>
               </div>
-            {/each}
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-2.5 bg-primary-teal rounded-full"></div>
+                <p>Female</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-2.5 bg-grey-light rounded-full"></div>
+                <p>Non-binary</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-2.5 bg-grey-dark rounded-full"></div>
+                <p>Prefer not to answer</p>
+              </div>
+            </div>
+            <div class="flex justify-center w-1/2 @sm:w-full @md:w-3/5 mx-auto mt-3">
+              <DonutChartLarge
+                segments={sortedGender}
+                thickness="28%"
+                showPercentages={true}
+                showBorder={false}
+              />
+            </div>
+          </div>
+  
+          <div>
+            <p class='caption'>Age Group</p>
+            <div class="space-y-3">
+              {#each ageGroup as group}
+                <div class="flex items-center gap-3">
+                  <p class="w-20">{group.index}</p>
+                  <div class="h-4 bg-primary-darkgreen rounded-full" 
+                      style="width: {group.percentage}%"
+                  ></div>
+                  <div class="body-s">{group.percentage}%</div>
+                </div>
+              {/each}
+            </div>
           </div>
         </div>
-      </div>
-    </Container>
-    
-    <div class="grid grid-cols-1 gap-6 @sm:grid-cols-2">
+      </Container>
+    </div>
+
+    <div class={`grid grid-cols-1 gap-6 @sm:grid-cols-2 ${format === 'block' ? '' : 'ml-6'}`}>
       <Container>
         <p class='caption'>Household Income</p>
         <div class="space-y-3">

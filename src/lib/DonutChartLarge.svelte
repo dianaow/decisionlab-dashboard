@@ -108,7 +108,7 @@
           text-anchor="middle"
           dominant-baseline="middle"
           fill="white"
-          font-size="5"
+          font-size="6"
           font-weight="bold"
         >
           {segment.percentage}%

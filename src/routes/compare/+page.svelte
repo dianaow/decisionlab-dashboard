@@ -55,7 +55,7 @@
       isFilterSticky = window.scrollY > filterPanelTop;
       
       if (isFilterSticky) {
-        filterPanelHeight = filterPanelRef.offsetHeight + 90;
+        filterPanelHeight = filterPanelRef.offsetHeight;
         isAdoptionSticky = true;
         
         const totalStickyHeight = filterPanelHeight + adoptionPanelRef.offsetHeight;
@@ -334,7 +334,7 @@
   
   <!-- Filter Panel with sticky behavior -->
   <div bind:this={filterPanelRef} 
-       class="mt-6 grid grid-cols-2 gap-6 w-full bg-grey-darkgreen px-6 text-white"
+       class="grid grid-cols-2 gap-6 w-full bg-grey-darkgreen px-6 text-white"
        class:sticky={isFilterSticky}>
     <div>
       <FilterPanel 
@@ -421,15 +421,15 @@
         </div>
       </div>
     {:else}
-      <div class="bg-background-dark px-4 sm:px-8 py-3">
-        <main class="grid grid-cols-2 gap-6">
+      <div class="bg-background-dark">
+        <main class="grid grid-cols-2">
           <!-- Regular adoption panels content -->
           <div>
-            <p class="subtitle-s">Adoption Potential <span class="text-primary-darkgreen italic">for ADUs</span></p>
+            <p class="pr-12 pl-12 pt-5 pb-1 subtitle-s">Adoption Potential <span class="text-primary-green italic">for ADUs</span></p>
             <div class="mt-3">
               {#each data1.adoptionStats as stat}
                 <div 
-                  class="flex items-center justify-between border-t border-grey-linegreen cursor-pointer p-2 rounded-md transition-colors duration-200 {
+                  class="pr-12 pl-12 flex items-center justify-between border-t border-grey-linegreen cursor-pointer p-0.5 transition-colors duration-200 {
                     panel1Values.adoption === stat.title 
                       ? 'bg-white shadow-sm text-primary-darkgreen' 
                       : 'hover:bg-gray-50'
@@ -461,11 +461,11 @@
           </div>
           
           <div>
-            <p class="subtitle-s">Adoption Potential <span class="text-primary-darkgreen italic">for ADUs</span></p>
+            <p class="pl-9 pr-12 pt-5 pb-1 subtitle-s">Adoption Potential <span class="text-primary-green italic">for ADUs</span></p>
             <div class="mt-3">
               {#each data2.adoptionStats as stat}
                 <div 
-                  class="flex items-center justify-between border-t border-grey-linegreen cursor-pointer p-2 rounded-md transition-colors duration-200 {
+                  class="pl-9 pr-12 flex items-center justify-between border-t border-grey-linegreen cursor-pointer p-0.5 transition-colors duration-200 {
                     panel2Values.adoption === stat.title 
                       ? 'bg-white shadow-sm text-primary-darkgreen' 
                       : 'hover:bg-gray-50'
@@ -509,26 +509,30 @@
           ageGroup={data1.ageGroup}
           householdIncome={data1.householdIncome}
           locationData={data1.locationData}
+          format='block'
         />
         <Demographics
           gender={data2.gender}
           ageGroup={data2.ageGroup}
           householdIncome={data2.householdIncome}
           locationData={data2.locationData}
+          format='block'
         />
       </div>
     </main>
      
-    <main class="bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
-      <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6 mt-5">
-        {#if panel1Values.persona == 'Homeowners' && data1.attributes.length > 0}
-          <Attributes data={data1.attributes} />
-        {/if}
-        {#if panel2Values.persona == 'Homeowners' && data2.attributes.length > 0}
-          <Attributes data={data2.attributes} />
-        {/if}
-      </div>
-    </main>
+    {#if panel1Values.persona == 'Homeowners' && panel2Values.persona == 'Homeowners'}
+      <main class="bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
+        <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6 mt-5">
+          {#if panel1Values.persona == 'Homeowners' && data1.attributes.length > 0}
+            <Attributes data={data1.attributes} />
+          {/if}
+          {#if panel2Values.persona == 'Homeowners' && data2.attributes.length > 0}
+            <Attributes data={data2.attributes} />
+          {/if}
+        </div>
+      </main>
+    {/if}
 
     <main class="bg-background-light px-4 sm:px-8 py-2 my-3 sm:my-0">
       <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6">
@@ -584,7 +588,7 @@
     width: 100%;
     left: 0;
     right: 0;
-    top: 65px;
+    top: 0px;
     z-index: 30;
     background-color: #2d3b3d;
   }

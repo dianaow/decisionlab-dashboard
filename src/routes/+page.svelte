@@ -29,6 +29,24 @@
   let isLoading = true;
   let personas = ['Homeowners', 'Residents'];
   let hoveredCard = null;
+  let isLargeScreen = false;
+
+  onMount(() => {
+    // Check initial screen size
+    isLargeScreen = window.innerWidth >= 1024;
+    
+    // Add resize listener
+    const handleResize = () => {
+      isLargeScreen = window.innerWidth >= 1024;
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    // Clean up on component destroy
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  });
 
   $: selectedAdoption = (selectedPersona === 'Residents' && selectedAdoption === 'Adopted') ? 'High Personal Support' : selectedAdoption
 
@@ -396,14 +414,14 @@
 
   // Compute the grid class based on the persona
   $: gridColClass = selectedPersona === 'Homeowners' 
-  ? 'grid-cols-2 lg:grid-cols-5 gap-0 xl:gap-4' 
-  : 'grid-cols-2 lg:grid-cols-4 gap-0 xl:gap-4';
+  ? 'grid-cols-3 md: grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-1' 
+  : 'grid-cols-3 md: grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-1';
 </script>
 
 <Header on:toggleMenu={handleMenuToggle} />
 
 <div class="flex flex-col md:flex-row h-auto">
-  <aside id='dropdownPanel' class="relative md:sticky top-24 md:h-[calc(100vh-5rem)] flex-shrink-0 flex w-full md:w-64 bg-grey-darkgreen p-4 md:p-6 text-white overflow-y-auto">  
+  <aside id='dropdownPanel' class="relative md:sticky top-0 md:h-[calc(100vh)] flex-shrink-0 flex w-full md:w-64 bg-grey-darkgreen p-4 md:p-6 text-white overflow-y-auto"> 
     <div class="space-y-2">
       <h3 class='text-white mb-8'>Filters</h3>
         <label class="block">Location</label>
@@ -447,7 +465,7 @@
     </div>
   </aside>
   
-  <div class='w-full bg-background-dark pt-28'>
+  <div class='w-full bg-background-dark pt-4'>
   <main class="hidden sm:block h-[calc(100vh-5.5rem)] bg-background-dark pb-3">
     <div class="relative h-full">
       {#if mapGeoJSON?.features?.length > 0}
@@ -504,7 +522,7 @@
       </div>
 
       <div class="adoption-title-wrapper" bind:this={adoptionTitleRef}>
-        <p class="subtitle-s ml-6 mb-4">
+        <p class="subtitle-s ml-8 mb-4">
           Adoption Potential 
           <span class="text-primary-darkgreen italic">
             for {selectedInnovation}
@@ -513,12 +531,12 @@
       </div>
       
       <div id="adoptionSection" class="sticky-panel w-full bg-background-dark">
-        <div class={`grid ${gridColClass} px-6 py-3`}>
+        <div class={`grid ${gridColClass} px-3 sm:px-4 lg:px-6 py-2 sm:py-3`}>
           {#each adoptionStats as stat}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div 
-              class="flex flex-col justify-between m-1 xl:m-2 p-4 rounded-lg relative {
+              class="flex flex-col justify-between m-0.5 sm:m-1 xl:m-2 p-2 sm:p-3 lg:p-4 rounded-lg relative {
                   selectedAdoption === stat.title 
                       ? 'bg-primary-darkgreen border-transparent text-white' 
                       : 'bg-background-dark border border-grey-linegreen text-current hover:bg-white cursor-pointer'
@@ -527,19 +545,18 @@
               on:mouseenter={() => selectedAdoption !== stat.title && (hoveredCard = stat.title)}
               on:mouseleave={() => selectedAdoption !== stat.title && (hoveredCard = null)}
             >
-              <p class="mb-2 {selectedAdoption === stat.title ? 'text-white' : ''}">{stat.title}</p>
+              <div class="caption {selectedAdoption === stat.title ? 'text-white !text-white' : ''}">{stat.title}</div>
               <div class="flex justify-between items-end">
-                <div class="flex flex-col justify-end">
+                <div class="flex flex-col justify-end flex-shrink-0">
                   <div class="hidden xl:block">
                     <h4 class="{selectedAdoption === stat.title ? 'text-white' : ''}">{stat.count.toLocaleString()}</h4>
                   </div>
                   <div class="block xl:hidden">
-                    <h4 class="font-secondary text-base leading-[18px] font-medium {selectedAdoption === stat.title ? 'text-white' : ''}">{stat.count.toLocaleString()}</h4>
-                  </div>
-                                    
-                  <span class="font-secondary text-xs leading-[18px] font-medium italic {selectedAdoption === stat.title ? 'text-white' : 'text-primary-darkgreen'}"> homeowners</span>
+                    <h4 class="{selectedAdoption === stat.title ? 'text-white' : ''}">{stat.count.toLocaleString()}</h4>
+                  </div>          
+                  <div class="body-s italic {selectedAdoption === stat.title ? 'text-white !text-white' : ''}"> homeowners</div>
                 </div>
-                <div class="hidden xl:block rounded-full transition-colors duration-200">
+                <div class="hidden xl:block rounded-full transition-colors duration-200 ml-1 sm:ml-2">
                   <DonutChart 
                     size='large' 
                     percentage={stat.percentage} 
@@ -548,7 +565,7 @@
                     isHovered={hoveredCard === stat.title}
                   />
                 </div>
-                <div class="block xl:hidden rounded-full transition-colors duration-200">
+                <div class="block xl:hidden rounded-full transition-colors duration-200 ml-1 sm:ml-2 transform scale-[0.6] sm:scale-75 md:scale-90 origin-right">
                   <DonutChart 
                     size='medium' 
                     percentage={stat.percentage} 
@@ -570,6 +587,8 @@
       <p class="subtitle-s">Adoption Potential <span class="text-primary-darkgreen italic">for {selectedInnovation === 'Select an Innovation' ? '' : selectedInnovation}</span></p>
       <div class="mt-3">
         {#each adoptionStats as stat}
+          <!-- svelte-ignore a11y_click_events_have_key_events -->
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
           <div 
             class="flex items-center justify-between border-t border-grey-linegreen cursor-pointer p-2 rounded-md transition-colors duration-200 {
               selectedAdoption === stat.title 
@@ -612,7 +631,7 @@
         ageGroup={ageGroup}
         householdIncome={householdIncome}
         locationData={locationData}
-        format={attributes.length > 0 ? 'block' : 'flex'}
+        format={attributes.length > 0 || !isLargeScreen ? 'block' : 'flex'}
       />
       {#if attributes.length > 0}
         <Attributes data={attributes} />
@@ -663,7 +682,7 @@
   @media (min-width: 640px) { /* sm breakpoint */
     .sticky-panel.is-sticky {
       position: fixed;
-      top: var(--header-height, 95px); /* Fallback value */
+      top: 0; /* Changed from var(--header-height) to 0 */
       bottom: auto;
       z-index: 20;
       background-color: #EBF0F0;
@@ -672,7 +691,7 @@
 
   .adoption-title-wrapper {
     position: absolute;
-    top: calc(100vh - 350px);
+    top: calc(100vh - 320px);
     left: 0;
     width: 100%;
     transition: opacity 0.3s ease, visibility 0.3s ease;
