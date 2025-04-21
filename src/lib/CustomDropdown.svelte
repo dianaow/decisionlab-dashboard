@@ -5,6 +5,7 @@
   export let value = '';
   export let placeholder = 'Select an option';
   export let onChange = () => {};
+  export let ariaLabel = '';
   
   let isOpen = false;
   let dropdownRef;
@@ -48,6 +49,7 @@
         isOpen ? 'bg-white text-primary-green' : 
         (isPlaceholderSelected ? 'bg-grey-darkgreen text-white' : 'bg-white text-primary-green')
       }"
+      aria-label={ariaLabel || label || placeholder}
     >
       <span class="font-secondary text-xs font-bold">{displayValue}</span>
       <svg 
@@ -56,6 +58,7 @@
         fill="none" 
         viewBox="0 0 24 24" 
         stroke="currentColor"
+        aria-hidden="true"
       >
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
       </svg>
@@ -63,12 +66,14 @@
     
     <!-- Dropdown menu -->
     {#if isOpen}
-      <div class="absolute z-50 w-full mt-1 bg-white rounded-md shadow-lg max-h-60 overflow-auto">
+      <div class="absolute z-50 w-full mt-1 bg-white rounded-md shadow-lg max-h-60 overflow-auto" role="listbox">
         <ul class="py-1">
           {#each options as option}
             <li 
               class="px-4 py-2 hover:bg-gray-100 cursor-pointer font-secondary text-xs font-bold {option === value ? 'text-primary-green' : 'text-grey-light'}"
               on:click={() => selectOption(option)}
+              role="option"
+              aria-selected={option === value}
             >
               {option}
             </li>

@@ -8,6 +8,7 @@
 
   export let data
   export let selectedProvince = '';
+  export let ariaLabel = '';
 
   let width;
   let height;
@@ -242,15 +243,17 @@
 >
   <svg 
     bind:this={svg}
+    role="img"
+    aria-label={ariaLabel}
   >
     <g bind:this={mapGroup}></g>
   </svg>
 
   {#if tooltipVisible}
     <div 
-      class="tooltip" 
+      class="tooltip"
       style="left: {tooltipX}px; top: {tooltipY}px;"
-      transition:fade
+      role="tooltip"
     >
       {@html tooltipContent}
       <div class="tooltip-arrow"></div>

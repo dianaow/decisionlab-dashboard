@@ -333,9 +333,12 @@
   <CompareHeader on:back={handleBack} />
   
   <!-- Filter Panel with sticky behavior -->
-  <div bind:this={filterPanelRef} 
-       class="grid grid-cols-2 gap-6 w-full bg-grey-darkgreen px-6 text-white"
-       class:sticky={isFilterSticky}>
+  <section 
+    bind:this={filterPanelRef} 
+    class="grid grid-cols-2 gap-6 w-full bg-grey-darkgreen px-6 text-white"
+    class:sticky={isFilterSticky}
+    aria-label="Filter options"
+  >
     <div>
       <FilterPanel 
         id="panel1"
@@ -352,22 +355,24 @@
         on:change={handlePanel2Change}
       />
     </div>
-  </div>
+  </section>
 
   <!-- Adoption Panel with sticky behavior -->
-  <div bind:this={adoptionPanelRef} 
-       class="w-full"
-       class:adoption-sticky={isAdoptionSticky}
-       style={isFilterSticky ? `top: ${filterPanelHeight}px;` : 'top: 0;'}>
-    
+  <section 
+    bind:this={adoptionPanelRef} 
+    class="w-full"
+    class:adoption-sticky={isAdoptionSticky}
+    style={isFilterSticky ? `top: ${filterPanelHeight}px;` : 'top: 0;'}
+    aria-label="Adoption statistics"
+  >
     {#if isAdoptionSticky}
       <div class="grid grid-cols-2 gap-6">
         <!-- First panel selected adoption -->
-        <div>
+        <article>
           {#if panel1Values.adoption && data1?.adoptionStats}
             {#each data1.adoptionStats.filter(stat => stat.title === panel1Values.adoption) as stat}
               <div class="pl-6 pr-6 flex items-center justify-between">
-                <div class='caption'>{stat.title}</div>          
+                <h2 class='caption'>{stat.title}</h2>          
                 <div class="flex items-center gap-4">
                   <span>
                     <span class="body-s italic">{stat.count}</span>
@@ -383,20 +388,21 @@
                       bgcolor={'#C6D0D0'} 
                       showPercentages={false} 
                       showDonut={false} 
+                      aria-label={`${stat.percentage}% adoption rate`}
                     />
                   </div>
                 </div>
               </div>
             {/each}
           {/if}
-        </div>
+        </article>
         
         <!-- Second panel selected adoption -->
-        <div>
+        <article>
           {#if panel2Values.adoption && data2?.adoptionStats}
             {#each data2.adoptionStats.filter(stat => stat.title === panel2Values.adoption) as stat}
               <div class="pl-6 pr-6 flex items-center justify-between">
-                <div class='caption'>{stat.title}</div>          
+                <h2 class='caption'>{stat.title}</h2>          
                 <div class="flex items-center gap-4">
                   <span>
                     <span class="body-s italic">{stat.count}</span>
@@ -412,36 +418,41 @@
                       bgcolor={'#C6D0D0'} 
                       showPercentages={false} 
                       showDonut={false} 
+                      aria-label={`${stat.percentage}% adoption rate`}
                     />
                   </div>
                 </div>
               </div>
             {/each}
           {/if}
-        </div>
+        </article>
       </div>
     {:else}
       <div class="bg-background-dark">
         <main class="grid grid-cols-2">
           <!-- Regular adoption panels content -->
-          <div>
-            <p class="pr-12 pl-12 pt-5 pb-1 subtitle-s">
+          <article>
+            <h1 class="pr-12 pl-12 pt-5 pb-1 subtitle-s">
               Adoption Potential 
               <span class="text-primary-green italic">
                 for {panel1Values.innovation}
               </span>
-            </p>
+            </h1>
             <div class="mt-3">
               {#each data1.adoptionStats as stat}
                 <div 
-                  class="pr-12 pl-12 flex items-center justify-between border-t border-grey-linegreen cursor-pointer pb-2 transition-colors duration-200 {
+                  class="w-full pr-12 pl-12 flex items-center justify-between border-t border-grey-linegreen cursor-pointer pb-2 transition-colors duration-200 {
                     panel1Values.adoption === stat.title 
                       ? 'bg-white shadow-sm text-primary-darkgreen' 
                       : 'hover:bg-gray-50'
                   }" 
                   on:click={() => selectAdoption1(stat)}
+                  on:keydown={(e) => e.key === 'Enter' && selectAdoption1(stat)}
+                  role="button"
+                  tabindex="0"
+                  aria-label={`Select ${stat.title} adoption rate`}
                 >
-                  <div class='caption mt-5'>{stat.title}</div>          
+                  <h2 class='caption mt-5'>{stat.title}</h2>          
                   <div class="flex items-center gap-4">
                     <span>
                       <span class="body-s italic">{stat.count}</span>
@@ -457,32 +468,37 @@
                         bgcolor={'#C6D0D0'} 
                         showPercentages={false} 
                         showDonut={false} 
+                        aria-label={`${stat.percentage}% adoption rate`}
                       />
                     </div>
                   </div>
                 </div>
               {/each}
             </div>
-          </div>
+          </article>
           
-          <div>
-            <p class="pl-9 pr-12 pt-5 pb-1 subtitle-s">
+          <article>
+            <h1 class="pl-9 pr-12 pt-5 pb-1 subtitle-s">
               Adoption Potential 
               <span class="text-primary-green italic">
                 for {panel2Values.innovation}
               </span>
-            </p>
+            </h1>
             <div class="mt-3">
               {#each data2.adoptionStats as stat}
                 <div 
-                  class="pl-9 pr-12 flex items-center justify-between border-t border-grey-linegreen cursor-pointer pb-2 transition-colors duration-200 {
+                  class="w-full pl-9 pr-12 flex items-center justify-between border-t border-grey-linegreen cursor-pointer pb-2 transition-colors duration-200 {
                     panel2Values.adoption === stat.title 
                       ? 'bg-white shadow-sm text-primary-darkgreen' 
                       : 'hover:bg-gray-50'
                   }" 
                   on:click={() => selectAdoption2(stat)}
+                  on:keydown={(e) => e.key === 'Enter' && selectAdoption2(stat)}
+                  role="button"
+                  tabindex="0"
+                  aria-label={`Select ${stat.title} adoption rate`}
                 >
-                  <div class='caption mt-5'>{stat.title}</div>          
+                  <h2 class='caption mt-5'>{stat.title}</h2>          
                   <div class="flex items-center gap-4">
                     <span>
                       <span class="body-s italic">{stat.count}</span>
@@ -498,21 +514,22 @@
                         bgcolor={'#C6D0D0'} 
                         showPercentages={false} 
                         showDonut={false} 
+                        aria-label={`${stat.percentage}% adoption rate`}
                       />
                     </div>
                   </div>
                 </div>
               {/each}
             </div>
-          </div>
+          </article>
         </main>
       </div>
     {/if}
-  </div>
+  </section>
 
   <!-- Main content with reference for padding adjustment -->
-  <div bind:this={mainContentRef} class="bg-background-light flex-1">
-    <main class="min-h-screen bg-background-light px-4 sm:px-8 py-3 sm:my-0">
+  <main bind:this={mainContentRef} class="bg-background-light flex-1">
+    <section class="min-h-screen bg-background-light px-4 sm:px-8 py-3 sm:my-0">
       <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6 mt-5">
         <Demographics
           gender={data1.gender}
@@ -529,10 +546,10 @@
           format='block'
         />
       </div>
-    </main>
+    </section>
      
     {#if panel1Values.persona == 'Homeowners' && panel2Values.persona == 'Homeowners' && data1.attributes.length > 0 && data2.attributes.length > 0}
-      <main class="bg-background-light px-4 sm:px-8 py-3 sm:my-0">
+      <section class="bg-background-light px-4 sm:px-8 py-3 sm:my-0">
         <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6 mt-5">
           {#if panel1Values.persona == 'Homeowners' && data1.attributes.length > 0}
             <Attributes data={data1.attributes} />
@@ -541,10 +558,10 @@
             <Attributes data={data2.attributes} />
           {/if}
         </div>
-      </main>
+      </section>
     {/if}
 
-    <main class="bg-background-light px-4 sm:px-8 py-3 sm:my-0">
+    <section class="bg-background-light px-4 sm:px-8 py-3 sm:my-0">
       <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6">
         <BarriersDrivers 
           barriers={data1.barriers}
@@ -555,9 +572,9 @@
           drivers={data2.drivers}
         />
       </div>
-    </main>
+    </section>
 
-    <main class="bg-background-light px-4 sm:px-8 py-3 sm:my-0">
+    <section class="bg-background-light px-4 sm:px-8 py-3 sm:my-0">
       <div class="w-full mx-auto grid grid-cols-2 gap-4 sm:gap-6">
         <CurrentHousing 
           housingTypes={data1.housingTypes}
@@ -568,9 +585,9 @@
           householdComposition={data2.householdComposition}
         />
       </div>
-    </main>
+    </section>
 
-    <main class="flex bg-background-light px-4 sm:px-8 py-3 sm:my-0">
+    <section class="flex bg-background-light px-4 sm:px-8 py-3 sm:my-0">
       <KeyCommunication 
         keyInfo={data1.keyInfo}
         trustSources={trustSources}
@@ -581,8 +598,8 @@
         trustSources={trustSources}
         distrustSources={distrustSources}
       />
-    </main>
-  </div>
+    </section>
+  </main>
 </div>
 
 <Footer />
